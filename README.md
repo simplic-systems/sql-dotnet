@@ -45,6 +45,13 @@ The library is under heavy development, so changes are maybe not up-to-date here
 The `compiler` compiles a sql query into `SIQL` code and cache it. If the same query will be executed later, it has not to be compiled
 again. The compiler is splitted into the following steps.
 
+## Debugger
+
+We are also creating some debugger tool. The debugger is not directly for debugging SQL-Statements, but for debugging the Compiler
+and runtime, because it visualize all generated results.
+
+![Debugger-Screen](/img/Debugger.png)
+
 ### Tokenizer
 
 ### Syntax-Tree-Builder (AST)
