@@ -54,12 +54,36 @@ and runtime, because it visualize all generated results.
 
 ### Tokenizer
 
+The tokenizer takes the input sql code and makes build tokens. E.g.: `SELECT A FROM B` will be splitted into `<SELECT> <A> <FROM> <B>`.
+
+*Involved files*
+
+1. */Compiler/Tokenizer/Tokenizer.cs* Tokenizer core
+2. */Compiler/Tokenizer/ParserConfiguration.cs* Configuration files for token generating
+
 ### Syntax-Tree-Builder (AST)
+
+The syntaxtree builder classifies all token in the `Build` method and creates the `Abstract-Syntax-Tree (AST)`. In this steps first Sql
+sematic analysis will be done. The result is a tree build of `SyntaxTreeNodes`. Also conditions and other expressions will be resolved
+using the `Shuntig-Yard` algorithm.
+
+*Involved files*
+
+1. */Compiler/SyntaxTree/SyntaxTreeBuilder.cs* Main tree builder
+2. */Compiler/SyntaxTree/Nodes/\** All node definitions
+1. */Compiler/SyntaxTree/Factory/SyntaxTreeFactory.cs* Token classification
+3. */Compiler/SyntaxTree/ShuntingYard.cs* Shunting Yard algorithm
 
 ### Sematic-Analysis
 
+_Not yet implemented_
+
 ### SIQL-Generator/Compiler
+
+Takes the optimized and generated `AST` and compiles it to `SIQL` code.
+
+1. */Compiler/ILCompiler/SIQLCompiler.cs* Main compiler
 
 ## Runtime
 
-The `runtime` is responsible to execute `SIQL` code and call the `IQueryExefutor` interface/implementation.
+The `runtime` is responsible to execute `SIQL` code and call the `IQueryExecutor` interface/implementation.
