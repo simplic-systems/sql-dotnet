@@ -5,7 +5,7 @@ Sql dot is a library which allows, to embed your own sql engine (parser, compile
 The parser is completly written using `c#` and available under the `MIT` license.
 
 Initialy the parser is written for the `ODBC-Driver` used by the `Simplic Content Delivery Network` and is set as open source
-project, to let other benefit from this project, and let it gro togehter.
+project, to let other benefit from this project and create some great sql-implementation togehter.
 
 ## Aim
 
