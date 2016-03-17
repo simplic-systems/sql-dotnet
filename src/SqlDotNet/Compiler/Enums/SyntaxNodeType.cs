@@ -37,6 +37,6 @@ namespace SqlDotNet.Compiler
         Values = 202,
 
         FuncCall = 500,
-        Arguments = 501
+        Argument = 501
     }
 }

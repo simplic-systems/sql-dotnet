@@ -62,12 +62,12 @@
     <Compile Include="Compiler\SyntaxTree\Factory\StaticFactoryToken.cs" />
     <Compile Include="Compiler\SyntaxTree\Factory\SyntaxTreeFactory.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\AllColumnNode.cs" />
+    <Compile Include="Compiler\SyntaxTree\Nodes\ArgumentNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\ConstantNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\DummyNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\FirstNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\EntryPointNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\DistinctNode.cs" />
-    <Compile Include="Compiler\SyntaxTree\Nodes\ArgumentList.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\ReturnValueList.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\CallFunctionNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\ValuesNode.cs" />

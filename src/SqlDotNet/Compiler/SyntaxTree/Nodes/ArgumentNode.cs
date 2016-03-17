@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SqlDotNet.Compiler
 {
-    public class ArgumentList : SyntaxTreeNode
+    public class ArgumentNode : SyntaxTreeNode
     {
-        public ArgumentList(SyntaxTreeNode parentNode, RawToken token) 
-            : base(parentNode, SyntaxNodeType.Arguments, token)
+        public ArgumentNode(SyntaxTreeNode parentNode, RawToken token) 
+            : base(parentNode, SyntaxNodeType.Argument, token)
         {
 
         }
@@ -18,7 +18,7 @@ namespace SqlDotNet.Compiler
         {
             get
             {
-                return "ArgumentList";
+                return "<Arg>";
             }
         }
 

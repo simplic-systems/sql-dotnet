@@ -202,7 +202,7 @@ namespace SqlDotNet.Compiler
                         bool argsFound = false;
 
                         int i = 0;
-                        /*foreach (var args in node.FindChildrenOfType<ArgumentNode>())
+                        foreach (var args in node.FindChildrenOfType<ArgumentNode>())
                         {
                             // Parse as expression and push result on the argument stack
                             CompileExpression(strBuilder, args, intendend);
@@ -217,7 +217,7 @@ namespace SqlDotNet.Compiler
 
                             argsFound = true;
                             i++;
-                        }*/
+                        }
 
                         argBuilder.Append(")");
 

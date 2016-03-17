@@ -528,7 +528,15 @@ namespace SqlDotNet.Compiler
                                         }
 
                                         // Get column list and attach to argument list
-                                        ParseExpressionList(functionCall, enclosingTokens, symbolTable, false, new TokenType[] { }, functionCall.CreateChildNode<ArgumentList>(null));
+                                        var returnList = ParseExpressionList(null, enclosingTokens, symbolTable, false, new TokenType[] { });
+                                        
+                                        foreach (var tmp in returnList.Children)
+                                        {
+                                            var arg = functionCall.CreateChildNode<ArgumentNode>(null);
+                                            arg.Children.Enqueue(tmp);
+                                        }
+                                        returnList.Children.Clear();
+                                        // ---
 
                                         TryGenerateAlias(functionCall, tokens);
                                     }
@@ -747,7 +755,7 @@ namespace SqlDotNet.Compiler
                         #region [TokenType.Comma]
                         case TokenType.Comma:
                             // Cancel the "loop"
-                            if (parent.NodeType == SyntaxNodeType.ReturnValueList || parent.NodeType == SyntaxNodeType.Arguments || parent.NodeType == SyntaxNodeType.Values)
+                            if (parent.NodeType == SyntaxNodeType.ReturnValueList || parent.NodeType == SyntaxNodeType.Argument || parent.NodeType == SyntaxNodeType.Values)
                             {
                                 tokens.PushFront(token);
                             }
