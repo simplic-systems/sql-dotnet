@@ -64,9 +64,12 @@ namespace SqlDotNet.Compiler
 
             switch (node.NodeType)
             {
+                #region [SyntaxNodeType.Select]
                 case SyntaxNodeType.Select:
                     {
                         var table = node.FindFirstOrDefaultByPath<FromNode, TableNode>();
+
+                        string cursorName = null;
 
                         // Use for select from a table
                         if (table != null)
@@ -74,7 +77,7 @@ namespace SqlDotNet.Compiler
                             // Open new cursor
                             cursorCounter++;
                             int cursorNr = cursorCounter;
-                            string cursorName = GetCursorName(cursorNr);
+                            cursorName = GetCursorName(cursorNr);
                             strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OPEN_PREP, "tbl", cursorName));
 
                             // Output definition
@@ -86,21 +89,114 @@ namespace SqlDotNet.Compiler
                             {
                                 tableName = table.Owner + "." + table.TableName;
                             }
-                            
-                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_SOURCE_PREP, cursorName, tableName));
-                        }
-                        // Use for calling scalar-functions and single values
-                        else
-                        {
 
+                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_SOURCE_PREP, cursorName, tableName));
+
+                            // Append filter
+                            var whereNode = node.FindFirstOrDefaultChildrenOfType<WhereNode>();
+
+                            if (whereNode != null)
+                            {
+                                strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_FILTER_PREP, cursorName));
+                                strBuilder.AppendLine(intendendStr + "{");
+
+                                CompileExpression(strBuilder, node.FindFirstOrDefaultChildrenOfType<WhereNode>(), intendend + 1);
+
+                                strBuilder.AppendLine(intendendStr + "}");
+                            }
                         }
+
+                        // Create result-set stuff
+                        resultSetCounter++;
+                        int resultSetNr = resultSetCounter;
+                        string resultSetName = GetResultSetName(resultSetNr);
+
+                        ReturnValueList lst = node.FindFirstOrDefaultChildrenOfType<ReturnValueList>();
+
+                        // Fill result-set column
+                        int unnamedColumns = 0;
+                        StringBuilder resultSetDefinition = new StringBuilder(); // Defines the returning columns
+                        foreach (var _node in lst.Children)
+                        {
+                            var alias = _node.FindFirstOrDefaultChildrenOfType<AsNode>();
+
+                            if (resultSetDefinition.Length > 0)
+                            {
+                                resultSetDefinition.Append(", ");
+                            }
+
+                            if (alias == null || string.IsNullOrWhiteSpace(alias.Alias))
+                            {
+                                resultSetDefinition.Append(string.Format("__col{0}", unnamedColumns));
+                                unnamedColumns++;
+                            }
+                            else
+                            {
+                                resultSetDefinition.Append(alias.Alias);
+                            }
+                        }
+
+                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_OPEN_PREP, resultSetName, "(" + resultSetDefinition.ToString() + ")"));
+
+                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_FILL_PREP, resultSetName, string.Format("({0})", (cursorName ?? ""))));
+                        strBuilder.AppendLine(intendendStr + "{");
+
+                        unnamedColumns = 0;
+                        if (lst != null)
+                        {
+                            strBuilder.AppendLine("\t" + intendendStr + SIQLCommands.RESULTSET_CREATE_ROW);
+
+                            foreach (var _node in lst.Children)
+                            {
+                                // Some dummy node, only needed because CompileExpression iterates over children
+                                // and needs a kind of "host"
+                                var __d__ = new DummyNode(_node);
+
+                                CompileExpression(strBuilder, __d__, intendend + 1);
+
+                                var alias = _node.FindFirstOrDefaultChildrenOfType<AsNode>();
+                                string aliasStr = "";
+                                if (alias != null && !string.IsNullOrWhiteSpace(alias.Alias))
+                                {
+                                    aliasStr = alias.Alias;
+                                }
+                                else
+                                {
+                                    aliasStr = string.Format("__col{0}", unnamedColumns);
+                                    unnamedColumns++;
+                                }
+
+                                strBuilder.AppendLine("\t" + intendendStr + string.Format(SIQLCommands.RESULTSET_POP_TO_NEXT_COLUMN_REP, aliasStr));
+                            }
+                        }
+
+                        strBuilder.AppendLine(intendendStr + "}");
+
+
                     }
                     break;
+                #endregion
+
+                #region [SyntaxNodeType.Column]
+                case SyntaxNodeType.Column:
+                    {
+                        var columnNode = (node as ColumnNode);
+
+                        string name = columnNode.ColumnName;
+
+                        if (!string.IsNullOrWhiteSpace(columnNode.Owner))
+                        {
+                            name = columnNode.Owner + "." + name;
+                        }
+
+                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_COLUMN_PREP, name));
+                    }
+                    break;
+                #endregion   
 
                 #region [SyntaxNodeType.FuncCall]
                 case SyntaxNodeType.FuncCall:
                     {
-                        break;
                         StringBuilder argBuilder = new StringBuilder();
                         argBuilder.Append(intendendStr + "call.f " + (node as SyntaxTreeNode).Token.Content + "(");
                         bool argsFound = false;
@@ -198,7 +294,7 @@ namespace SqlDotNet.Compiler
                         }
                     }
                     break;
-                #endregion
+                    #endregion
             }
         }
 
@@ -213,8 +309,8 @@ namespace SqlDotNet.Compiler
         {
             Dequeue<SyntaxTreeNode> postFixQueue = new Dequeue<SyntaxTreeNode>();
 
-            // Parse the tree to postfix notation
-            List<SyntaxTreeNode> tempList = node.Children.ToList();
+            // Parse the tree to postfix notation and ignore As-Keyowrds
+            List<SyntaxTreeNode> tempList = node.FindChildrenBesidesOfType<AsNode>().ToList();
 
             while (tempList.Count > 0)
             {

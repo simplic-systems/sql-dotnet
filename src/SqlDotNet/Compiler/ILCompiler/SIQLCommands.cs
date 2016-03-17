@@ -109,6 +109,23 @@ namespace SqlDotNet.Compiler
         /// </summary>
         public const string RESULTSET_POP_TO_NEXT_COLUMN = "pnxc";
 
+        /// <summary>
+        /// <see cref="RESULTSET_POP_TO_NEXT_COLUMN"/> {0}
+        /// {0}: Alias of the column
+        /// </summary>
+        public const string RESULTSET_POP_TO_NEXT_COLUMN_REP = RESULTSET_POP_TO_NEXT_COLUMN + " {0}";
+
+        /// <summary>
+        /// Load column onto the stack
+        /// </summary>
+        public const string LOAD_COLUMN = "ldcol";
+
+        /// <summary>
+        /// <see cref="LOAD_COLUMN"/> {0}
+        /// {0}: Full qualified column name
+        /// </summary>
+        public const string LOAD_COLUMN_PREP = LOAD_COLUMN + " {0}";
+
         #region [Operator]
         /// <summary>
         /// Add operator

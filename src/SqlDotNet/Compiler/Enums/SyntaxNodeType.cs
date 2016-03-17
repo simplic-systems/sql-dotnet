@@ -11,6 +11,8 @@ namespace SqlDotNet.Compiler
     /// </summary>
     public enum SyntaxNodeType
     {
+        Dummy = -1,
+
         EntryPoint = 0,
         Constant = 1,
         Parenthesis = 2,

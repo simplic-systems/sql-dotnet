@@ -63,6 +63,7 @@
     <Compile Include="Compiler\SyntaxTree\Factory\SyntaxTreeFactory.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\AllColumnNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\ConstantNode.cs" />
+    <Compile Include="Compiler\SyntaxTree\Nodes\DummyNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\FirstNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\EntryPointNode.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\DistinctNode.cs" />
