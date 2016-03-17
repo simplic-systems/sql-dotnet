@@ -79,7 +79,7 @@
                           MouseDoubleClick="errorGridView_MouseDoubleClick"/>
             </TabItem>
             <TabItem Header="IL-Code">
-                <avalonEdit:TextEditor Name="ilCodeTextBox" Margin="3" SyntaxHighlighting="JavaScript" FontFamily="Consolas" FontSize="10pt" Grid.Row="1"/>
+                <avalonEdit:TextEditor Name="ilCodeTextBox" Margin="3" FontFamily="Consolas" FontSize="10pt" Grid.Row="1"/>
             </TabItem>
             <TabItem Header="Output">
                 <TextBox x:Name="outputTextBox" Margin="3" FontFamily="Consolas" />

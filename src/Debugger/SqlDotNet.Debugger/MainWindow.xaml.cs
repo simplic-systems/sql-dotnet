@@ -75,6 +75,16 @@ namespace SqlDotNet.Debugger
                 }
             }
 
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("SqlDotNet.Debugger.siql.xshd"))
+            {
+                using (var reader = new System.Xml.XmlTextReader(stream))
+                {
+                    ilCodeTextBox.SyntaxHighlighting =
+                        ICSharpCode.AvalonEdit.Highlighting.Xshd.HighlightingLoader.Load(reader,
+                        ICSharpCode.AvalonEdit.Highlighting.HighlightingManager.Instance);
+                }
+            }
+
             try
             {
                 scriptPath = System.IO.File.ReadAllText("LastCode.settings");
