@@ -12,7 +12,7 @@ namespace SqlDotNet
     public class Sql
     {
         #region Private Member
-        private Executor.IQueryExecutor executor;
+        private CLRInterface.IQueryExecutor executor;
         private IErrorListener errorListener;
         #endregion
 
@@ -22,7 +22,7 @@ namespace SqlDotNet
         /// </summary>
         /// <param name="executor">If statements should be executed and not just compiled, object which definition
         /// inherit from IQieryExecuter must be passed. This implementation carries for all sql executions</param>
-        public Sql(Executor.IQueryExecutor executor, IErrorListener errorListener)
+        public Sql(CLRInterface.IQueryExecutor executor, IErrorListener errorListener)
         {
             this.executor = executor;
             this.errorListener = errorListener;            
@@ -37,7 +37,7 @@ namespace SqlDotNet
         /// <param name="parameter">Parameter as list</param>
         /// <param name="useCache">if set to true, cached queries will be used</param>
         /// <returns>Return value, amount for none query objects, else query result</returns>
-        public object CompileAndExecute(string sql, IList<Executor.QueryParameter> parameter, bool useCache = true)
+        public object CompileAndExecute(string sql, IList<CLRInterface.QueryParameter> parameter, bool useCache = true)
         {
             Compiler.CompiledQuery query = null;
 
@@ -92,7 +92,7 @@ namespace SqlDotNet
         /// <param name="query">Compiled query instance</param>
         /// <param name="parameter">List of parameter</param>
         /// <returns>Return value, amount for none query objects, else query result</returns>
-        public object Execute(Compiler.CompiledQuery query, IList<Executor.QueryParameter> parameter)
+        public object Execute(Compiler.CompiledQuery query, IList<CLRInterface.QueryParameter> parameter)
         {
             if (query == null)
             {
@@ -103,7 +103,7 @@ namespace SqlDotNet
                 throw new Exception("No executor set");
             }
 
-            var exec = new Executor.QueryExecutor();
+            var exec = new CLRInterface.QueryExecutor();
 
             return exec.Execute(executor, query, parameter, errorListener);
         }

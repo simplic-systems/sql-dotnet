@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SqlDotNet.Executor
+namespace SqlDotNet.CLRInterface
 {
     /// <summary>
     /// Execute a query and triggers IQueryExecutor instances

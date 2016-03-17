@@ -3,7 +3,7 @@ using ICSharpCode.SharpDevelop.Editor;
 using Microsoft.Win32;
 using SqlDotNet;
 using SqlDotNet.Compiler;
-using SqlDotNet.Executor;
+using SqlDotNet.CLRInterface;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

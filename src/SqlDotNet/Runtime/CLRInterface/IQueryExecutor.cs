@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SqlDotNet.Executor
+namespace SqlDotNet.CLRInterface
 {
     /// <summary>
     /// Interface which must be implemented to execute parsed sql queries. If this interface is implemented correctly,

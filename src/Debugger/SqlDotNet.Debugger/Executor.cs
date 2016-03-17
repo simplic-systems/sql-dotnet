@@ -1,4 +1,4 @@
-﻿using SqlDotNet.Executor;
+﻿using SqlDotNet.CLRInterface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
