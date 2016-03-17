@@ -17,6 +17,7 @@ namespace SqlDotNet.Compiler
         #region Private Member
         private IErrorListener errorListener;
         private int cursorCounter;
+        private int resultSetCounter;
         #endregion
 
         #region Constructor
@@ -86,15 +87,20 @@ namespace SqlDotNet.Compiler
                         }
 
                         // cur0 / curx
-                        strBuilder.Append(GetCursorName(cursorNr));
+                        strBuilder.AppendLine(GetCursorName(cursorNr));
 
                         // Set cursor source, if type is not none:
                         if (!isNoneCursor)
                         {
                             // cursrc.cur0 B		// Set the cursor source. Syntax cursrc.<name> Source-Name
-                            strBuilder.AppendLine(string.Format("cursrc.{0} {1}", GetCursorName(cursorNr), tableName));
+                            strBuilder.AppendLine(intendendStr + string.Format("cursrc.{0} {1}", GetCursorName(cursorNr), tableName));
                         }
 
+                        // Do resultset stuff
+                        resultSetCounter++;
+                        int currentResultSetNr = resultSetCounter;
+
+                        strBuilder.AppendLine("oresset " + GetResultSetName(currentResultSetNr));
                     }
                     break;
 
@@ -150,7 +156,7 @@ namespace SqlDotNet.Compiler
                             val = val.Substring(0, val.Length - 1);
                         }
 
-                        strBuilder.AppendLine(intendendStr + "ldc." + type + " " + val);
+                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_CONST_PREP, type, val));
                     }
                     break;
                 #endregion
@@ -161,40 +167,40 @@ namespace SqlDotNet.Compiler
                         switch ((node as OperatorNode).OperatorType)
                         {
                             case OperatorType.Add:
-                                strBuilder.AppendLine(intendendStr + "add");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_ADD);
                                 break;
                             case OperatorType.Sub:
-                                strBuilder.AppendLine(intendendStr + "sub");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SUB);
                                 break;
                             case OperatorType.Mul:
-                                strBuilder.AppendLine(intendendStr + "mul");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_MUL);
                                 break;
                             case OperatorType.Div:
-                                strBuilder.AppendLine(intendendStr + "div");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_DIV);
                                 break;
                             case OperatorType.Equal:
-                                strBuilder.AppendLine(intendendStr + "eq");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_EQ);
                                 break;
                             case OperatorType.Unequal:
-                                strBuilder.AppendLine(intendendStr + "ueq");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_UEQ);
                                 break;
                             case OperatorType.Greater:
-                                strBuilder.AppendLine(intendendStr + "gt");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GT);
                                 break;
                             case OperatorType.Smaller:
-                                strBuilder.AppendLine(intendendStr + "sm");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SM);
                                 break;
                             case OperatorType.GreaterEqual:
-                                strBuilder.AppendLine(intendendStr + "gteq");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GTEQ);
                                 break;
                             case OperatorType.SmallerEqual:
-                                strBuilder.AppendLine(intendendStr + "smeq");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SMEQ);
                                 break;
                             case OperatorType.And:
-                                strBuilder.AppendLine(intendendStr + "and");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_AND);
                                 break;
                             case OperatorType.Or:
-                                strBuilder.AppendLine(intendendStr + "or");
+                                strBuilder.AppendLine(intendendStr + SIQLCommands.OP_OR);
                                 break;
                         }
                     }
@@ -291,6 +297,11 @@ namespace SqlDotNet.Compiler
         private string GetCursorName(int curNo)
         {
             return string.Format("cur{0}", curNo);
+        }
+
+        private string GetResultSetName(int setNo)
+        {
+            return string.Format("res{0}", setNo);
         }
 
         #endregion
