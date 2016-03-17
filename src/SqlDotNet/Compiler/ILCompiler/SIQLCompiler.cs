@@ -198,7 +198,7 @@ namespace SqlDotNet.Compiler
                 case SyntaxNodeType.FuncCall:
                     {
                         StringBuilder argBuilder = new StringBuilder();
-                        argBuilder.Append(intendendStr + "call.f " + (node as SyntaxTreeNode).Token.Content + "(");
+                        argBuilder.Append(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, "f", (node as SyntaxTreeNode).Token.Content) + "(");
                         bool argsFound = false;
 
                         int i = 0;
@@ -206,7 +206,7 @@ namespace SqlDotNet.Compiler
                         {
                             // Parse as expression and push result on the argument stack
                             CompileExpression(strBuilder, args, intendend);
-                            strBuilder.AppendLine((new string('\t', intendend)) + "ldarg." + i.ToString());
+                            strBuilder.AppendLine((new string('\t', intendend)) + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
 
                             if (argsFound)
                             {

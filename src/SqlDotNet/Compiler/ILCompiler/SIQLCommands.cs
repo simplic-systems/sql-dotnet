@@ -126,6 +126,29 @@ namespace SqlDotNet.Compiler
         /// </summary>
         public const string LOAD_COLUMN_PREP = LOAD_COLUMN + " {0}";
 
+        /// <summary>
+        /// Call a function
+        /// </summary>
+        public const string CALL_FUNCTION = "call";
+
+        /// <summary>
+        /// <see cref="CALL_FUNCTION"/> .{0} {1}
+        /// {0}: Call function type. for example f or _insert_into (internal example)
+        /// {1}: Name of the function
+        /// </summary>
+        public const string CALL_FUNCTION_PREP = CALL_FUNCTION + ".{0} {1}";
+
+        /// <summary>
+        /// Push from stack to argument stack
+        /// </summary>
+        public const string LOAD_ARGUMENT = "ldarg";
+
+        /// <summary>
+        /// <see cref="LOAD_ARGUMENT"/> .{0}
+        /// {0}: Arugment number
+        /// </summary>
+        public const string LOAD_ARGUMENT_PREP = LOAD_ARGUMENT + ".{0}";
+
         #region [Operator]
         /// <summary>
         /// Add operator

@@ -35,6 +35,37 @@ SqlDotNet.Sql.RegisterExecutor<MyQueryExecutor>()
 SIQL - Structured Intermidiate Query Lanugage. All sql queries will be compiled into this simple language before execution.
 This language is similar to `.net IL` code and other intermedate languages.
 
+*Short example:* `SELECT Ident, Name, ValueInCent * 100 as Dollar FROM Products WHERE Name = 'Ski'`
+
+```asm
+// SQL program
+
+@siql v1
+
+ocur.tbl cur1
+curout.cur1 ()
+cursrc.cur1 Products
+filter cur1
+{
+	ldcol Name
+	ldc.str 'Ski'
+	eq
+}
+oresset res1
+fresset.res1 (cur1)
+{
+	crow
+	ldcol Ident
+	pnxc __col0
+	ldcol Name
+	pnxc __col1
+	ldcol ValueInCent
+	ldc.i4 100
+	mul
+	pnxc Dollar
+}
+```
+
 ### Library structure
 
 The library is structured into a `compiler` and `runtime`. Both with be explained in this article, to get an overview.
