@@ -43,7 +43,7 @@ namespace SqlDotNet.Compiler
 
             strBuilder.AppendLine("// SQL program");
             strBuilder.AppendLine();
-            strBuilder.AppendLine("@sqil " + SIQL_VERSION);
+            strBuilder.AppendLine(string.Format("{0} {1}", SIQLCommands.SIQL_TAG, SIQL_VERSION));
             strBuilder.AppendLine();
 
             // Compile to output
@@ -66,41 +66,34 @@ namespace SqlDotNet.Compiler
             {
                 case SyntaxNodeType.Select:
                     {
-                        // Open new cursor
-                        cursorCounter++;
-                        int cursorNr = cursorCounter;
+                        var table = node.FindFirstOrDefaultByPath<FromNode, TableNode>();
 
-                        strBuilder.Append(intendendStr + "ocur.");
-
-                        // Cursor type. Currently only none-types and tables are supported
-                        bool isNoneCursor = false;
-                        string tableName = "";
-                        if (node.FindChildrenOfType<FromNode>().Count > 0)
+                        // Use for select from a table
+                        if (table != null)
                         {
-                            tableName = node.FindChildrenOfType<FromNode>()[0].FindChildrenOfType<TableNode>()[0].TableName;
-                            strBuilder.Append("tpl");
+                            // Open new cursor
+                            cursorCounter++;
+                            int cursorNr = cursorCounter;
+                            string cursorName = GetCursorName(cursorNr);
+                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OPEN_PREP, "tbl", cursorName));
+
+                            // Output definition
+                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OUTPUT_DEFINITION_PREP, cursorName, ""));
+
+                            // Cursor source
+                            string tableName = table.TableName;
+                            if (!string.IsNullOrWhiteSpace(table.Owner))
+                            {
+                                tableName = table.Owner + "." + table.TableName;
+                            }
+                            
+                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_SOURCE_PREP, cursorName, tableName));
                         }
+                        // Use for calling scalar-functions and single values
                         else
                         {
-                            isNoneCursor = true;
-                            strBuilder.Append("none");
+
                         }
-
-                        // cur0 / curx
-                        strBuilder.AppendLine(GetCursorName(cursorNr));
-
-                        // Set cursor source, if type is not none:
-                        if (!isNoneCursor)
-                        {
-                            // cursrc.cur0 B		// Set the cursor source. Syntax cursrc.<name> Source-Name
-                            strBuilder.AppendLine(intendendStr + string.Format("cursrc.{0} {1}", GetCursorName(cursorNr), tableName));
-                        }
-
-                        // Do resultset stuff
-                        resultSetCounter++;
-                        int currentResultSetNr = resultSetCounter;
-
-                        strBuilder.AppendLine("oresset " + GetResultSetName(currentResultSetNr));
                     }
                     break;
 

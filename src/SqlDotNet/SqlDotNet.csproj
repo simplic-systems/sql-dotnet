@@ -49,6 +49,7 @@
     <Compile Include="Compiler\Enums\SyntaxNodeType.cs" />
     <Compile Include="Compiler\Enums\TokenType.cs" />
     <Compile Include="Compiler\ILCompiler\ICompiler.cs" />
+    <Compile Include="Compiler\ILCompiler\SIQLCommands.cs" />
     <Compile Include="Compiler\ILCompiler\SIQLCompiler.cs" />
     <Compile Include="Compiler\IScopeNode.cs" />
     <Compile Include="Compiler\ShuntingYard.cs" />

@@ -31,14 +31,14 @@ namespace SqlDotNet.Compiler
         /// <summary>
         /// Open a cursor for iterating over sources/values and generate results
         /// </summary>
-        public const string OPEN_CURSOR = "ocur";
+        public const string CURSOR_OPEN = "ocur";
 
         /// <summary>
-        /// <see cref="OPEN_CURSOR"/> .{0} {1}
-        /// {0}: Cursor type, currently only none and table
+        /// <see cref="CURSOR_OPEN"/> .{0} {1}
+        /// {0}: Cursor type, currently only table
         /// {1}: Name of the cursor. Should start with curx (x is the number)
         /// </summary>
-        public const string OPEN_CURSOR_PREP = OPEN_CURSOR + ".{0} {1}";
+        public const string CURSOR_OPEN_PREP = CURSOR_OPEN + ".{0} {1}";
 
         /// <summary>
         /// Defines the cursor output definition
@@ -75,6 +75,39 @@ namespace SqlDotNet.Compiler
         /// {0}: Name of the result-set. In general starts with resX (X is increasing number)
         /// </summary>
         public const string RESULTSET_OPEN_PREP = RESULTSET_OPEN + " {0}";
+
+        /// <summary>
+        /// Defines a cursor filter
+        /// </summary>
+        public const string CURSOR_FILTER = "filter";
+
+        /// <summary>
+        /// <see cref="CURSOR_FILTER"/> {0}
+        /// {0}: Cursor which will be filtered
+        /// </summary>
+        public const string CURSOR_FILTER_PREP = CURSOR_FILTER + " {0}";
+
+        /// <summary>
+        /// Defines a term which will be used to fill a result set
+        /// </summary>
+        public const string RESULTSET_FILL = "fresset";
+
+        /// <summary>
+        /// <see cref="RESULTSET_FILL"/>.{0} (1)
+        /// {0}: Name of the result set
+        /// {1}: List of cursoers
+        /// </summary>
+        public const string RESULTSET_FILL_PREP = RESULTSET_FILL + ".{0} {1}";
+
+        /// <summary>
+        /// Create a new row in a result set
+        /// </summary>
+        public const string RESULTSET_CREATE_ROW = "crow";
+
+        /// <summary>
+        /// Pop the value on the stack to the next column in the result-set
+        /// </summary>
+        public const string RESULTSET_POP_TO_NEXT_COLUMN = "pnxc";
 
         #region [Operator]
         /// <summary>
@@ -130,12 +163,12 @@ namespace SqlDotNet.Compiler
         /// <summary>
         /// Smaller-Equal boolean operator
         /// </summary>
-        public const string OP_SME = "sme";
+        public const string OP_SMEQ = "smeq";
 
         /// <summary>
         /// Greater-Equal boolean operator
         /// </summary>
-        public const string OP_GTE = "gte";
+        public const string OP_GTEQ = "gteq";
         #endregion
     }
 }

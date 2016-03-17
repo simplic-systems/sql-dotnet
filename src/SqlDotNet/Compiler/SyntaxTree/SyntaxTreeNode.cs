@@ -76,6 +76,108 @@ namespace SqlDotNet.Compiler
         }
 
         /// <summary>
+        /// Get the first child or null
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <returns>First child or null</returns>
+        public T FindFirstOrDefaultChildrenOfType<T>()
+        {
+            return children.Where(Item => Item is T).OfType<T>().ToList().FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Find by path
+        /// </summary>
+        /// <typeparam name="P1"></typeparam>
+        /// <typeparam name="P2"></typeparam>
+        /// <returns></returns>
+        public P2 FindFirstOrDefaultByPath<P1, P2>() 
+            where P1 : SyntaxTreeNode 
+            where P2 : SyntaxTreeNode
+        {
+            var p1 = FindFirstOrDefaultChildrenOfType<P1>();
+
+            if (p1 != null)
+            {
+                return p1.FindFirstOrDefaultChildrenOfType<P2>();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Find by path
+        /// </summary>
+        /// <typeparam name="P1"></typeparam>
+        /// <typeparam name="P2"></typeparam>
+        /// <typeparam name="P3"></typeparam>
+        /// <returns></returns>
+        public P3 FindFirstOrDefaultByPath<P1, P2, P3>()
+            where P1 : SyntaxTreeNode
+            where P2 : SyntaxTreeNode
+            where P3 : SyntaxTreeNode
+        {
+            var p2 = FindFirstOrDefaultByPath<P1, P2>();
+
+            if (p2 != null)
+            {
+                return p2.FindFirstOrDefaultChildrenOfType<P3>();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Find by path
+        /// </summary>
+        /// <typeparam name="P1"></typeparam>
+        /// <typeparam name="P2"></typeparam>
+        /// <typeparam name="P3"></typeparam>
+        /// <typeparam name="P4"></typeparam>
+        /// <returns></returns>
+        public P4 FindFirstOrDefaultByPath<P1, P2, P3, P4>()
+            where P1 : SyntaxTreeNode
+            where P2 : SyntaxTreeNode
+            where P3 : SyntaxTreeNode
+            where P4 : SyntaxTreeNode
+        {
+            var p3 = FindFirstOrDefaultByPath<P1, P2, P3>();
+
+            if (p3 != null)
+            {
+                return p3.FindFirstOrDefaultChildrenOfType<P4>();
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Find by path
+        /// </summary>
+        /// <typeparam name="P1"></typeparam>
+        /// <typeparam name="P2"></typeparam>
+        /// <typeparam name="P3"></typeparam>
+        /// <typeparam name="P4"></typeparam>
+        /// <typeparam name="P5"></typeparam>
+        /// <returns></returns>
+        public P5 FindFirstOrDefaultByPath<P1, P2, P3, P4, P5>()
+            where P1 : SyntaxTreeNode
+            where P2 : SyntaxTreeNode
+            where P3 : SyntaxTreeNode
+            where P4 : SyntaxTreeNode
+            where P5 : SyntaxTreeNode
+        {
+            var p4 = FindFirstOrDefaultByPath<P1, P2, P3, P4>();
+
+            if (p4 != null)
+            {
+                return p4.FindFirstOrDefaultChildrenOfType<P5>();
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Get all childres which are NOT of a specifig type
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
