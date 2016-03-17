@@ -21,10 +21,26 @@ namespace SqlDotNet.Runtime
         /// <summary>
         /// Create SCL-Runtime
         /// </summary>
-        public SCLRuntime()
+        /// <param name="parameter">List of available parameter</param>
+        public SCLRuntime(IList<QueryParameter> parameter)
         {
             // create basic scope
             rootScope = new Scope(null);
+
+            int unnamedCounter = 0;
+            foreach (var _var in parameter)
+            {
+                string _varName = _var.Name;
+
+                if (string.IsNullOrWhiteSpace(_varName))
+                {
+                    _varName = string.Format("__unnamed{0}", unnamedCounter);
+                    unnamedCounter++;
+                }
+
+                var newVar = rootScope.CreateVariable(_varName);
+                newVar.Value = _var.Value;
+            }
         }
         #endregion
 
@@ -50,7 +66,7 @@ namespace SqlDotNet.Runtime
         /// <summary>
         /// Execute siql code
         /// </summary>
-        public void Execute(Stream ilCode, IList<QueryParameter> parameter)
+        public void Execute(Stream ilCode)
         {
             
         }
@@ -59,10 +75,9 @@ namespace SqlDotNet.Runtime
         /// Execute command chain node directly
         /// </summary>
         /// <param name="root">Root command chain item</param>
-        /// <param name="parameter">List of available parmaeter</param>
-        internal void Execute(CommandChainNode root, IList<QueryParameter> parameter)
+        internal void Execute(CommandChainNode root)
         {
-
+            ExecuteCommand(root, this.rootScope);
         }
         #endregion
 

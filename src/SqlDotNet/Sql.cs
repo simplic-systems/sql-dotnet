@@ -69,16 +69,15 @@ namespace SqlDotNet
         public Compiler.CompiledQuery Compile(string sql)
         {
             var parserConfig = new Compiler.ParserConfiguration();
-            var query = new Compiler.CompiledQuery();
 
             var tokenizer = GetTokenizer();
             tokenizer.ParseAsync(sql);
 
             var syntaxTreeBuilder = new Compiler.SyntaxTreeBuilder(parserConfig, tokenizer.Tokens, errorListener);
-            query.EntryPoint = syntaxTreeBuilder.Build();
+            var entryPoint = syntaxTreeBuilder.Build();
 
             var compiler = new Compiler.SIQLCompiler(errorListener);
-            query.ILCode = compiler.Compile(query.EntryPoint);
+            var query = compiler.Compile(entryPoint);
 
             QueryCache.CacheQuery(sql, query);
 

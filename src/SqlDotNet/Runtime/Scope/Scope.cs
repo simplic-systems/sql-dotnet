@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Simplic.Collections.Generic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace SqlDotNet.Runtime
     internal class Scope
     {
         #region Private Member
-        private IDictionary<string, Column> vars;
+        private IDictionary<string, Variable> vars;
         private Scope parentScope;
         private CommandStack stack;
         private Dequeue<Tuple<int, StackItem>> argStack;
@@ -25,7 +26,7 @@ namespace SqlDotNet.Runtime
         /// <param name="parent">Parent scope, can be null</param>
         public Scope(Scope parent)
         {
-            vars = new Dictionary<string, Column>();
+            vars = new Dictionary<string, Variable>();
             this.parentScope = parent;
 
             this.stack = new CommandStack();
@@ -53,7 +54,7 @@ namespace SqlDotNet.Runtime
         /// </summary>
         /// <param name="name">Name of the variable</param>
         /// <returns>New var</returns>
-        public Column CreateVariable(string name)
+        public Variable CreateVariable(string name)
         {
             if (vars.ContainsKey(name))
             {
@@ -61,7 +62,7 @@ namespace SqlDotNet.Runtime
             }
             else
             {
-                var _var = new Column(name);
+                var _var = new Variable(name);
                 vars.Add(name, _var);
                 return _var;
             }
@@ -72,7 +73,7 @@ namespace SqlDotNet.Runtime
         /// </summary>
         /// <param name="name">Name of the var</param>
         /// <returns>Variable instance</returns>
-        public Column GetVariable(string name)
+        public Variable GetVariable(string name)
         {
             // Proof wether a variable exists in the current scope
             if (!vars.ContainsKey(name))
@@ -121,7 +122,7 @@ namespace SqlDotNet.Runtime
         /// <summary>
         /// List with all vars
         /// </summary>
-        internal IDictionary<string, Column> Vars
+        internal IDictionary<string, Variable> Vars
         {
             get { return vars; }
         }

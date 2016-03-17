@@ -82,12 +82,16 @@
     <Compile Include="Compiler\SyntaxTree\SyntaxTreeBuilder.cs" />
     <Compile Include="Compiler\SyntaxTree\SyntaxTreeNode.cs" />
     <Compile Include="Error\ErrorListener.cs" />
+    <Compile Include="Runtime\Scope\Argument.cs" />
     <Compile Include="Runtime\CLRInterface\IQueryExecutor.cs" />
     <Compile Include="Runtime\CLRInterface\QueryExecutor.cs" />
     <Compile Include="Runtime\CLRInterface\QueryParameter.cs" />
     <Compile Include="Runtime\CLRInterface\QueryResultRow.cs" />
     <Compile Include="QueryCache.cs" />
+    <Compile Include="Runtime\Scope\Variable.cs" />
     <Compile Include="Runtime\CommandChain\CommandChainNode.cs" />
+    <Compile Include="Runtime\Scope\Scope.cs" />
+    <Compile Include="Runtime\SQLRuntime.cs" />
     <Compile Include="Runtime\Stack\CommandStack.cs" />
     <Compile Include="Runtime\Stack\StackItem.cs" />
     <Compile Include="Sql.cs" />

@@ -18,6 +18,7 @@ namespace SqlDotNet.Compiler
         private IErrorListener errorListener;
         private int cursorCounter;
         private int resultSetCounter;
+        private CompiledQuery result;
         #endregion
 
         #region Constructor
@@ -37,8 +38,9 @@ namespace SqlDotNet.Compiler
         /// </summary>
         /// <param name="node">TreeNode instnace</param>
         /// <returns>Stream with the compiled code</returns>
-        public System.IO.Stream Compile(SyntaxTreeNode node)
+        public CompiledQuery Compile(EntryPointNode node)
         {
+            result = new CompiledQuery();
             StringBuilder strBuilder = new StringBuilder();
 
             strBuilder.AppendLine("// SQL program");
@@ -53,7 +55,9 @@ namespace SqlDotNet.Compiler
             }
 
             // Return code
-            return new System.IO.MemoryStream(Encoding.UTF8.GetBytes(strBuilder.ToString()));
+            result.ILCode = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(strBuilder.ToString()));
+            result.EntryPoint = node as EntryPointNode;
+            return result;
         }
         #endregion
 
