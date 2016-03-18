@@ -9,15 +9,18 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class RootNode : CommandChainNode
+    internal class PopToNextColumn : CommandChainNode
     {
-        public RootNode(CommandChainNode parent)
+        public PopToNextColumn(CommandChainNode parent)
             : base(parent)
         {
-
+            
         }
 
-        public string Version
+        /// <summary>
+        /// Column name/alias
+        /// </summary>
+        public string ColumnName
         {
             get;
             set;

@@ -9,18 +9,12 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class RootNode : CommandChainNode
+    internal class CreateResultSetRow : CommandChainNode
     {
-        public RootNode(CommandChainNode parent)
+        public CreateResultSetRow(CommandChainNode parent)
             : base(parent)
         {
 
-        }
-
-        public string Version
-        {
-            get;
-            set;
         }
     }
 }

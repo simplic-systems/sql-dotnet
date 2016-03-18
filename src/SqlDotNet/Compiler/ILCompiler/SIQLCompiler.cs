@@ -1,4 +1,5 @@
 ﻿using Simplic.Collections.Generic;
+using SqlDotNet.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace SqlDotNet.Compiler
         private int cursorCounter;
         private int resultSetCounter;
         private CompiledQuery result;
+        private CLRInterface.IQueryExecutor executor;
         #endregion
 
         #region Constructor
@@ -26,9 +28,10 @@ namespace SqlDotNet.Compiler
         /// Create compiler
         /// </summary>
         /// <param name="errorListener">Error listener instance</param>
-        public SIQLCompiler(IErrorListener errorListener)
+        public SIQLCompiler(IErrorListener errorListener, CLRInterface.IQueryExecutor executor)
         {
             this.errorListener = errorListener;
+            this.executor = executor;
         }
         #endregion
 
@@ -41,6 +44,9 @@ namespace SqlDotNet.Compiler
         public CompiledQuery Compile(EntryPointNode node)
         {
             result = new CompiledQuery();
+            result.CommandChainRoot = new RootNode(null);
+            ((RootNode)(result.CommandChainRoot)).Version = SIQL_VERSION;
+
             StringBuilder strBuilder = new StringBuilder();
 
             strBuilder.AppendLine("// SQL program");
@@ -51,7 +57,7 @@ namespace SqlDotNet.Compiler
             // Compile to output
             foreach (var child in node.Children)
             {
-                Compile(strBuilder, child, 0);
+                Compile(strBuilder, child, result.CommandChainRoot, 0);
             }
 
             // Return code
@@ -62,7 +68,7 @@ namespace SqlDotNet.Compiler
         #endregion
 
         #region Private Member
-        private void Compile(StringBuilder strBuilder, SyntaxTreeNode node, int intendend)
+        private void Compile(StringBuilder strBuilder, SyntaxTreeNode node, CommandChainNode parent, int intendend)
         {
             string intendendStr = new string('\t', intendend);
 
@@ -78,14 +84,34 @@ namespace SqlDotNet.Compiler
                         // Use for select from a table
                         if (table != null)
                         {
+                            var tblDef = executor.GetTableSchema(table.Owner, table.TableName);   
+
+                            /*TODO:
+                            Some where here we have to check for columns which does can not be found in any table definition,
+                            are available in multiple table definition or other stuff that is not allowed to happen...
+                            */
+
                             // Open new cursor
                             cursorCounter++;
                             int cursorNr = cursorCounter;
                             cursorName = GetCursorName(cursorNr);
-                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OPEN_PREP, "tbl", cursorName));
 
                             // Output definition
-                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OUTPUT_DEFINITION_PREP, cursorName, ""));
+                            StringBuilder columnsStr = new StringBuilder();
+                            foreach (var col in tblDef.Columns)
+                            {
+                                if (columnsStr.Length > 0)
+                                {
+                                    columnsStr.Append(", ");
+                                }
+                                columnsStr.Append(col.Name);
+                            }
+
+                            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OPEN_PREP, "tbl", cursorName, columnsStr.ToString()));
+                            var openCursorNode = parent.CreateNode<OpenCursor>();
+                            openCursorNode.Columns = tblDef.Columns.ToList();
+                            openCursorNode.CursorName = cursorName;
+                            openCursorNode.CursorType = "tbl";
 
                             // Cursor source
                             string tableName = table.TableName;
@@ -95,16 +121,18 @@ namespace SqlDotNet.Compiler
                             }
 
                             strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_SOURCE_PREP, cursorName, tableName));
+                            openCursorNode.CursorSource = tableName;
 
                             // Append filter
                             var whereNode = node.FindFirstOrDefaultChildrenOfType<WhereNode>();
+                            var cursorFilter = openCursorNode.CreateNode<FilterCursor>();
 
                             if (whereNode != null)
                             {
                                 strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_FILTER_PREP, cursorName));
                                 strBuilder.AppendLine(intendendStr + "{");
 
-                                CompileExpression(strBuilder, node.FindFirstOrDefaultChildrenOfType<WhereNode>(), intendend + 1);
+                                CompileExpression(strBuilder, node.FindFirstOrDefaultChildrenOfType<WhereNode>(), cursorFilter, intendend + 1);
 
                                 strBuilder.AppendLine(intendendStr + "}");
                             }
@@ -116,10 +144,12 @@ namespace SqlDotNet.Compiler
                         string resultSetName = GetResultSetName(resultSetNr);
 
                         ReturnValueList lst = node.FindFirstOrDefaultChildrenOfType<ReturnValueList>();
-
+                        
                         // Fill result-set column
                         int unnamedColumns = 0;
                         StringBuilder resultSetDefinition = new StringBuilder(); // Defines the returning columns
+                        var resultSetDefnList = new List<string>();
+
                         foreach (var _node in lst.Children)
                         {
                             var alias = _node.FindFirstOrDefaultChildrenOfType<AsNode>();
@@ -131,24 +161,33 @@ namespace SqlDotNet.Compiler
 
                             if (alias == null || string.IsNullOrWhiteSpace(alias.Alias))
                             {
+                                resultSetDefnList.Add(string.Format("__col{0}", unnamedColumns));
                                 resultSetDefinition.Append(string.Format("__col{0}", unnamedColumns));
                                 unnamedColumns++;
                             }
                             else
                             {
                                 resultSetDefinition.Append(alias.Alias);
+                                resultSetDefnList.Add(alias.Alias);
                             }
                         }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_OPEN_PREP, resultSetName, "(" + resultSetDefinition.ToString() + ")"));
+                        var resultSetNode = parent.CreateNode<OpenResultSet>();
+                        resultSetNode.ResultSetName = resultSetName;
+                        resultSetNode.ResultSetDefinition = resultSetDefnList;
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_FILL_PREP, resultSetName, string.Format("({0})", (cursorName ?? ""))));
+                        var fillResultSetNode = resultSetNode.CreateNode<FillResultSet>();
+                        fillResultSetNode.Cursor = cursorName;
+
                         strBuilder.AppendLine(intendendStr + "{");
 
                         unnamedColumns = 0;
                         if (lst != null)
                         {
                             strBuilder.AppendLine("\t" + intendendStr + SIQLCommands.RESULTSET_CREATE_ROW);
+                            fillResultSetNode.CreateNode<CreateResultSetRow>();
 
                             foreach (var _node in lst.Children)
                             {
@@ -156,7 +195,7 @@ namespace SqlDotNet.Compiler
                                 // and needs a kind of "host"
                                 var __d__ = new DummyNode(_node);
 
-                                CompileExpression(strBuilder, __d__, intendend + 1);
+                                CompileExpression(strBuilder, __d__, fillResultSetNode, intendend + 1);
 
                                 var alias = _node.FindFirstOrDefaultChildrenOfType<AsNode>();
                                 string aliasStr = "";
@@ -171,12 +210,11 @@ namespace SqlDotNet.Compiler
                                 }
 
                                 strBuilder.AppendLine("\t" + intendendStr + string.Format(SIQLCommands.RESULTSET_POP_TO_NEXT_COLUMN_REP, aliasStr));
+                                fillResultSetNode.CreateNode<PopToNextColumn>().ColumnName = aliasStr;
                             }
                         }
 
                         strBuilder.AppendLine(intendendStr + "}");
-
-
                     }
                     break;
                 #endregion
@@ -209,7 +247,7 @@ namespace SqlDotNet.Compiler
                         foreach (var args in node.FindChildrenOfType<ArgumentNode>())
                         {
                             // Parse as expression and push result on the argument stack
-                            CompileExpression(strBuilder, args, intendend);
+                           // CompileExpression(strBuilder, args, null, intendend);
                             strBuilder.AppendLine((new string('\t', intendend)) + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
 
                             if (argsFound)
@@ -238,6 +276,9 @@ namespace SqlDotNet.Compiler
                     if (constNode.DataType == DataType.Null)
                     {
                         strBuilder.AppendLine("ldnull");
+                        var ldNull = parent.CreateNode<LoadConstantNode>();
+                        ldNull.ConstantValue = null;
+                        ldNull.DataType = DataType.Null;
                     }
                     else
                     {
@@ -250,6 +291,9 @@ namespace SqlDotNet.Compiler
                         }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_CONST_PREP, type, val));
+                        var ldc = parent.CreateNode<LoadConstantNode>();
+                        ldc.ConstantValue = val;
+                        ldc.DataType = DataTypeHelper.StrToDataType(type);
                     }
                     break;
                 #endregion
@@ -261,39 +305,51 @@ namespace SqlDotNet.Compiler
                         {
                             case OperatorType.Add:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_ADD);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Add;
                                 break;
                             case OperatorType.Sub:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SUB);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Sub;
                                 break;
                             case OperatorType.Mul:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_MUL);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Mul;
                                 break;
                             case OperatorType.Div:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_DIV);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Div;
                                 break;
                             case OperatorType.Equal:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_EQ);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Equal;
                                 break;
                             case OperatorType.Unequal:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_UEQ);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Unequal;
                                 break;
                             case OperatorType.Greater:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GT);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Greater;
                                 break;
                             case OperatorType.Smaller:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SM);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Smaller;
                                 break;
                             case OperatorType.GreaterEqual:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GTEQ);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.GreaterEqual;
                                 break;
                             case OperatorType.SmallerEqual:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SMEQ);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.SmallerEqual;
                                 break;
                             case OperatorType.And:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_AND);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.And;
                                 break;
                             case OperatorType.Or:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_OR);
+                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Or;
                                 break;
                         }
                     }
@@ -309,7 +365,7 @@ namespace SqlDotNet.Compiler
         /// <param name="strBuilder"></param>
         /// <param name="node"></param>
         /// <param name="intendend"></param>
-        private void CompileExpression(StringBuilder strBuilder, SyntaxTreeNode node, int intendend)
+        private void CompileExpression(StringBuilder strBuilder, SyntaxTreeNode node, CommandChainNode parent, int intendend)
         {
             Dequeue<SyntaxTreeNode> postFixQueue = new Dequeue<SyntaxTreeNode>();
 
@@ -342,7 +398,7 @@ namespace SqlDotNet.Compiler
                 var qNode = postFixQueue.PopFirst();
 
                 // Compile tree element
-                Compile(strBuilder, qNode, intendend);
+                Compile(strBuilder, qNode, parent, intendend);
             }
         }
         #endregion

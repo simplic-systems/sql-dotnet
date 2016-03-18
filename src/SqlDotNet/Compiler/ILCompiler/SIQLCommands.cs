@@ -34,23 +34,12 @@ namespace SqlDotNet.Compiler
         public const string CURSOR_OPEN = "ocur";
 
         /// <summary>
-        /// <see cref="CURSOR_OPEN"/> .{0} {1}
+        /// <see cref="CURSOR_OPEN"/> .{0} {1} ({2})
         /// {0}: Cursor type, currently only table
         /// {1}: Name of the cursor. Should start with curx (x is the number)
+        /// {2}: Name of possible return columns
         /// </summary>
-        public const string CURSOR_OPEN_PREP = CURSOR_OPEN + ".{0} {1}";
-
-        /// <summary>
-        /// Defines the cursor output definition
-        /// </summary>
-        public const string CURSOR_OUTPUT_DEFINITION = "curout";
-
-        /// <summary>
-        /// <see cref="CURSOR_OUTPUT_DEFINITION"/> .{0} {1}
-        /// {0}: Cursor name
-        /// {1}: List of return-columns ffor the given source
-        /// </summary>
-        public const string CURSOR_OUTPUT_DEFINITION_PREP = CURSOR_OUTPUT_DEFINITION + ".{0} ({1})";
+        public const string CURSOR_OPEN_PREP = CURSOR_OPEN + ".{0} {1} ({2})";
 
         /// <summary>
         /// Defines the source, which fills the query based on the query type from ocur.

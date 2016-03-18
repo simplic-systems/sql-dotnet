@@ -9,15 +9,21 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class RootNode : CommandChainNode
+    internal class OpenResultSet : CommandChainNode
     {
-        public RootNode(CommandChainNode parent)
+        public OpenResultSet(CommandChainNode parent)
             : base(parent)
         {
 
         }
 
-        public string Version
+        public string ResultSetName
+        {
+            get;
+            set;
+        }
+
+        public IList<string> ResultSetDefinition
         {
             get;
             set;

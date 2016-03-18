@@ -9,15 +9,15 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class RootNode : CommandChainNode
+    internal class FillResultSet : CommandChainNode
     {
-        public RootNode(CommandChainNode parent)
+        public FillResultSet(CommandChainNode parent)
             : base(parent)
         {
 
         }
 
-        public string Version
+        public string Cursor
         {
             get;
             set;

@@ -76,7 +76,7 @@ namespace SqlDotNet
             var syntaxTreeBuilder = new Compiler.SyntaxTreeBuilder(parserConfig, tokenizer.Tokens, errorListener);
             var entryPoint = syntaxTreeBuilder.Build();
 
-            var compiler = new Compiler.SIQLCompiler(errorListener);
+            var compiler = new Compiler.SIQLCompiler(errorListener, executor);
             var query = compiler.Compile(entryPoint);
 
             QueryCache.CacheQuery(sql, query);
@@ -102,9 +102,10 @@ namespace SqlDotNet
                 throw new Exception("No executor set");
             }
 
-            var exec = new CLRInterface.QueryExecutor();
+            Runtime.SCLRuntime runtime = new Runtime.SCLRuntime(parameter);
+            runtime.Execute(query.CommandChainRoot);
 
-            return exec.Execute(executor, query, parameter, errorListener);
+            return null;
         }
 
         #region [Helper]

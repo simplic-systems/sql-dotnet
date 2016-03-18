@@ -54,7 +54,12 @@ namespace SqlDotNet.Runtime
         /// <param name="scope">Current scope, in which the command is executed</param>
         private void ExecuteCommand(CommandChainNode node, Scope scope)
         {
+            if (node is OpenCursor)
+            {
+                var openCursorNode = (OpenCursor)node;
 
+                
+            }
         }
         #endregion
 
@@ -77,7 +82,10 @@ namespace SqlDotNet.Runtime
         /// <param name="root">Root command chain item</param>
         internal void Execute(CommandChainNode root)
         {
-            ExecuteCommand(root, this.rootScope);
+            foreach (var node in root.Children)
+            {
+                ExecuteCommand(node, this.rootScope);
+            }
         }
         #endregion
 

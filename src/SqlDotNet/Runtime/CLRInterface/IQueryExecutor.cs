@@ -1,4 +1,5 @@
 ﻿using SqlDotNet.Compiler;
+using SqlDotNet.Schema;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,5 +32,13 @@ namespace SqlDotNet.CLRInterface
         /// <param name="parameter">List of parameter</param>
         /// <returns>Return value as object</returns>
         object CallFunction(string name, IList<QueryParameter> parameter);
+
+        /// <summary>
+        /// Get the table definitions
+        /// </summary>
+        /// <param name="owner">Table owner (user, db, ...)</param>
+        /// <param name="table">Table name</param>
+        /// <returns></returns>
+        TableDefinition GetTableSchema(string owner, string table);
     }
 }

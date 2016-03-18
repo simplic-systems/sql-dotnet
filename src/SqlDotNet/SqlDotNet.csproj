@@ -82,12 +82,18 @@
     <Compile Include="Compiler\SyntaxTree\SyntaxTreeBuilder.cs" />
     <Compile Include="Compiler\SyntaxTree\SyntaxTreeNode.cs" />
     <Compile Include="Error\ErrorListener.cs" />
+    <Compile Include="Runtime\CommandChain\FilterCursor.cs" />
+    <Compile Include="Runtime\CommandChain\FillResultSet.cs" />
+    <Compile Include="Runtime\CommandChain\OpenResultSet.cs" />
+    <Compile Include="Runtime\CommandChain\OpenCursor.cs" />
+    <Compile Include="Runtime\CommandChain\PopToNextColumn.cs" />
+    <Compile Include="Runtime\CommandChain\CreateResultSetRow.cs" />
+    <Compile Include="Schema\ColumnDefinition.cs" />
     <Compile Include="Runtime\CommandChain\LoadConstantNode.cs" />
     <Compile Include="Runtime\CommandChain\OperatorNode.cs" />
     <Compile Include="Runtime\CommandChain\RootNode.cs" />
     <Compile Include="Runtime\Scope\Argument.cs" />
     <Compile Include="Runtime\CLRInterface\IQueryExecutor.cs" />
-    <Compile Include="Runtime\CLRInterface\QueryExecutor.cs" />
     <Compile Include="Runtime\CLRInterface\QueryParameter.cs" />
     <Compile Include="Runtime\CLRInterface\QueryResultRow.cs" />
     <Compile Include="QueryCache.cs" />
@@ -97,6 +103,7 @@
     <Compile Include="Runtime\SQLRuntime.cs" />
     <Compile Include="Runtime\Stack\CommandStack.cs" />
     <Compile Include="Runtime\Stack\StackItem.cs" />
+    <Compile Include="Schema\TableDefinition.cs" />
     <Compile Include="Sql.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Compiler\SyntaxTree\Nodes\ColumnNode.cs" />
