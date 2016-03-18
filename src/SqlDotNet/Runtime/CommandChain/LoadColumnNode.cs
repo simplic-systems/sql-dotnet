@@ -8,23 +8,29 @@ using System.Threading.Tasks;
 namespace SqlDotNet.Runtime
 {
     /// <summary>
-    /// Stack item instance
+    /// Load a constant value onto the stack
     /// </summary>
-    public struct StackItem
+    internal class LoadColumnNode : CommandChainNode
     {
+        public LoadColumnNode(CommandChainNode parent)
+            : base(parent)
+        {
+
+        }
+
         /// <summary>
-        /// Value
+        /// Value of the current constant
         /// </summary>
-        public object Value
+        public string Name
         {
             get;
             set;
         }
 
         /// <summary>
-        /// Type
+        /// Column owner
         /// </summary>
-        public DataType DataType
+        public string Owner
         {
             get;
             set;

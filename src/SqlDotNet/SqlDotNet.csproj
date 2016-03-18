@@ -84,10 +84,12 @@
     <Compile Include="Error\ErrorListener.cs" />
     <Compile Include="Runtime\CommandChain\FilterCursor.cs" />
     <Compile Include="Runtime\CommandChain\FillResultSet.cs" />
+    <Compile Include="Runtime\CommandChain\LoadColumnNode.cs" />
     <Compile Include="Runtime\CommandChain\OpenResultSet.cs" />
     <Compile Include="Runtime\CommandChain\OpenCursor.cs" />
     <Compile Include="Runtime\CommandChain\PopToNextColumn.cs" />
     <Compile Include="Runtime\CommandChain\CreateResultSetRow.cs" />
+    <Compile Include="Runtime\Scope\Cursor.cs" />
     <Compile Include="Schema\ColumnDefinition.cs" />
     <Compile Include="Runtime\CommandChain\LoadConstantNode.cs" />
     <Compile Include="Runtime\CommandChain\OperatorNode.cs" />

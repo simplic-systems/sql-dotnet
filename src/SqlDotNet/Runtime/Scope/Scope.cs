@@ -10,10 +10,11 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Main runtime scope
     /// </summary>
-    internal class Scope
+    public class Scope
     {
         #region Private Member
         private IDictionary<string, Variable> vars;
+        private IDictionary<string, Cursor> cursors;
         private Scope parentScope;
         private CommandStack stack;
         private Dequeue<Tuple<int, StackItem>> argStack;
@@ -27,6 +28,7 @@ namespace SqlDotNet.Runtime
         public Scope(Scope parent)
         {
             vars = new Dictionary<string, Variable>();
+            cursors = new Dictionary<string, Cursor>();
             this.parentScope = parent;
 
             this.stack = new CommandStack();
@@ -69,6 +71,25 @@ namespace SqlDotNet.Runtime
         }
 
         /// <summary>
+        /// Create and add a new cursor
+        /// </summary>
+        /// <param name="name">Name of the cursor</param>
+        /// <returns>Cursor instance</returns>
+        public Cursor CreateCursor(string name)
+        {
+            if (cursors.ContainsKey(name))
+            {
+                throw new Exception("Cursor already exists: " + name);
+            }
+            else
+            {
+                var _cursor = new Cursor(name);
+                cursors.Add(name, _cursor);
+                return _cursor;
+            }
+        }
+
+        /// <summary>
         /// Get an already existing variable
         /// </summary>
         /// <param name="name">Name of the var</param>
@@ -90,6 +111,31 @@ namespace SqlDotNet.Runtime
             {
                 // Return the existing variable
                 return vars[name];
+            }
+        }
+
+        /// <summary>
+        /// Get an already existing cursor
+        /// </summary>
+        /// <param name="name">Name of the cursor</param>
+        /// <returns>Cursor instance</returns>
+        public Cursor GetCursor(string name)
+        {
+            // Proof whether a cursor exists in the current scope
+            if (!cursors.ContainsKey(name))
+            {
+                if (parentScope != null)
+                {
+                    // Look in the parent scope if the variable exists
+                    return parentScope.GetCursor(name);
+                }
+                // Exit the script execution with throwing an exception
+                throw new Exception("Cursor does not exists: " + name);
+            }
+            else
+            {
+                // Return the existing variable
+                return cursors[name];
             }
         }
         #endregion

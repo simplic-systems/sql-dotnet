@@ -9,7 +9,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class FilterCursor : CommandChainNode
+    public class FilterCursor : CommandChainNode
     {
         public FilterCursor(CommandChainNode parent)
             : base(parent)

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SqlDotNet.Compiler;
 using SqlDotNet.Schema;
+using SqlDotNet.Runtime;
 
 namespace SqlDotNet.Debugger
 {
@@ -33,6 +34,19 @@ namespace SqlDotNet.Debugger
         public int Insert(string tableName, IList<ColumnNode> columns, IList<QueryParameter> parameter)
         {
             return 123;
+        }
+
+        public IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, FilterCursor filter, Scope parameter)
+        {
+            var returnValue = new List<QueryResultRow>();
+
+            var row = new QueryResultRow();
+            row.Columns.Add("archiv_guid", Guid.NewGuid());
+            row.Columns.Add("archiv_blob", new byte[] { 1, 23, 213, 24 });
+
+            returnValue.Add(row);
+
+            return returnValue;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Command-Chain node, every CommandNode must inherit from this node
     /// </summary>
-    internal abstract class CommandChainNode
+    public abstract class CommandChainNode
     {
         #region Private Member
         private CommandChainNode parent;

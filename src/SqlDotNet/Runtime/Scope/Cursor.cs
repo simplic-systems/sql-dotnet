@@ -4,26 +4,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SqlDotNet.CLRInterface;
 
 namespace SqlDotNet.Runtime
 {
     /// <summary>
-    /// Column
+    /// Cursor scope item
     /// </summary>
-    public class Variable
+    public class Cursor
     {
         #region Private Member
         private string name;
-        private object value;
-        private DataType dataType;
+        private IList<CLRInterface.QueryResultRow> rows;
         #endregion
 
         #region Constructor
         /// <summary>
-        /// Crate variable and set name
+        /// Create cursor
         /// </summary>
-        /// <param name="name">Name of the var</param>
-        public Variable(string name)
+        /// <param name="name">Unique cursor name</param>
+        public Cursor(string name)
         {
             this.name = name;
         }
@@ -46,22 +46,16 @@ namespace SqlDotNet.Runtime
             get { return name; }
         }
 
-        /// <summary>
-        /// Get set variable value
-        /// </summary>
-        public object Value
+        public IList<QueryResultRow> Rows
         {
-            get { return this.value; }
-            set { this.value = value; }
-        }
-
-        /// <summary>
-        /// Variable data type
-        /// </summary>
-        public DataType DataType
-        {
-            get { return dataType; }
-            set { dataType = value; }
+            get
+            {
+                return rows;
+            }
+            internal set
+            {
+                rows = value;
+            }
         }
         #endregion
     }

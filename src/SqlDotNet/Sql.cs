@@ -102,7 +102,7 @@ namespace SqlDotNet
                 throw new Exception("No executor set");
             }
 
-            Runtime.SCLRuntime runtime = new Runtime.SCLRuntime(parameter);
+            Runtime.SCLRuntime runtime = new Runtime.SCLRuntime(executor, parameter);
             runtime.Execute(query.CommandChainRoot);
 
             return null;

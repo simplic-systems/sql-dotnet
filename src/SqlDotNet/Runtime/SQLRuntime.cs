@@ -15,17 +15,20 @@ namespace SqlDotNet.Runtime
     {
         #region Private Member
         private Scope rootScope;
+        private CLRInterface.IQueryExecutor executor;
         #endregion
 
         #region Constructor
         /// <summary>
         /// Create SCL-Runtime
         /// </summary>
+        /// <param name="executor">Pass clr interface</param>
         /// <param name="parameter">List of available parameter</param>
-        public SCLRuntime(IList<QueryParameter> parameter)
+        public SCLRuntime(CLRInterface.IQueryExecutor executor, IList<QueryParameter> parameter)
         {
             // create basic scope
             rootScope = new Scope(null);
+            this.executor = executor;
 
             int unnamedCounter = 0;
             foreach (var _var in parameter)
@@ -57,9 +60,38 @@ namespace SqlDotNet.Runtime
             if (node is OpenCursor)
             {
                 var openCursorNode = (OpenCursor)node;
+                var cursor = scope.CreateCursor(openCursorNode.CursorName);
 
-                
+                FilterCursor filter = openCursorNode.FindChildrenOfType<FilterCursor>().FirstOrDefault();
+
+                if (openCursorNode.CursorType == "tbl")
+                {
+                    cursor.Rows = executor.Select(openCursorNode.CursorSource, false, false, openCursorNode.Columns, filter, scope);
+                }
             }
+            else if (node is OpenResultSet)
+            {
+                var openResultSet = (OpenResultSet)node;
+
+                var fill = openResultSet.FindChildrenOfType<FillResultSet>().FirstOrDefault();
+            }
+            else if (node is OperatorNode)
+            {
+                scope.Stack.Execute((node as OperatorNode).OpType);
+            }
+            // Constant handling
+            // Push constant node to the stack
+            else if (node is LoadConstantNode)
+            {
+                var constNode = (node as LoadConstantNode);
+                scope.Stack.Push(constNode.ConstantValue, constNode.DataType);
+            }
+            // Operator
+            else if (node is OperatorNode)
+            {
+                scope.Stack.Execute((node as OperatorNode).OpType);
+            }
+
         }
         #endregion
 
@@ -71,9 +103,9 @@ namespace SqlDotNet.Runtime
         /// <summary>
         /// Execute siql code
         /// </summary>
-        public void Execute(Stream ilCode)
+        internal void Execute(Stream ilCode)
         {
-            
+            throw new NotImplementedException("Not yet implemented. SIQL parser is not finished.");
         }
 
         /// <summary>
