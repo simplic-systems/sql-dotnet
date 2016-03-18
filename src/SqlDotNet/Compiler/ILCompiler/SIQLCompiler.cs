@@ -234,7 +234,7 @@ namespace SqlDotNet.Compiler
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_COLUMN_PREP, name));
                         var colNode = parent.CreateNode<LoadColumnNode>();
                         colNode.Name = columnNode.ColumnName;
-                        colNode.Owner = columnNode.Owner;
+                        colNode.Cursor = columnNode.Owner;
                     }
                     break;
                 #endregion   

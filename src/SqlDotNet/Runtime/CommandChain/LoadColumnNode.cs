@@ -18,9 +18,6 @@ namespace SqlDotNet.Runtime
 
         }
 
-        /// <summary>
-        /// Value of the current constant
-        /// </summary>
         public string Name
         {
             get;
@@ -28,9 +25,9 @@ namespace SqlDotNet.Runtime
         }
 
         /// <summary>
-        /// Column owner
+        /// Name of the cursor
         /// </summary>
-        public string Owner
+        public string Cursor
         {
             get;
             set;

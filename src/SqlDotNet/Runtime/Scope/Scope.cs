@@ -15,6 +15,7 @@ namespace SqlDotNet.Runtime
         #region Private Member
         private IDictionary<string, Variable> vars;
         private IDictionary<string, Cursor> cursors;
+        private IDictionary<string, ResultSet> resultSets;
         private Scope parentScope;
         private CommandStack stack;
         private Dequeue<Tuple<int, StackItem>> argStack;
@@ -29,6 +30,7 @@ namespace SqlDotNet.Runtime
         {
             vars = new Dictionary<string, Variable>();
             cursors = new Dictionary<string, Cursor>();
+            resultSets = new Dictionary<string, ResultSet>();
             this.parentScope = parent;
 
             this.stack = new CommandStack();
@@ -90,6 +92,41 @@ namespace SqlDotNet.Runtime
         }
 
         /// <summary>
+        /// Create and add a new result set
+        /// </summary>
+        /// <param name="name">Name of the result set</param>
+        /// <returns>Result set instance</returns>
+        public ResultSet CreateResultSet(string name)
+        {
+            if (resultSets.ContainsKey(name))
+            {
+                throw new Exception("ResultSet already exists: " + name);
+            }
+            else
+            {
+                var _rs = new ResultSet(name);
+                resultSets.Add(name, _rs);
+                return _rs;
+            }
+        }
+
+        /// <summary>
+        /// Get last or default set, only for the current scope
+        /// </summary>
+        /// <returns>Current scope</returns>
+        public ResultSet GetResultSet()
+        {
+            var res = resultSets.LastOrDefault().Value;
+
+            if (res == null && parentScope != null)
+            {
+                return parentScope.GetResultSet();
+            }
+
+            return res;
+        }
+
+        /// <summary>
         /// Get an already existing variable
         /// </summary>
         /// <param name="name">Name of the var</param>
@@ -136,6 +173,31 @@ namespace SqlDotNet.Runtime
             {
                 // Return the existing variable
                 return cursors[name];
+            }
+        }
+
+        /// <summary>
+        /// Get an already existing result set
+        /// </summary>
+        /// <param name="name">Name of the resultset</param>
+        /// <returns>Resultset instance</returns>
+        public ResultSet GetResultSet(string name)
+        {
+            // Proof whether a cursor exists in the current scope
+            if (!resultSets.ContainsKey(name))
+            {
+                if (parentScope != null)
+                {
+                    // Look in the parent scope if the variable exists
+                    return parentScope.GetResultSet(name);
+                }
+                // Exit the script execution with throwing an exception
+                throw new Exception("ResltSet does not exists: " + name);
+            }
+            else
+            {
+                // Return the existing variable
+                return resultSets[name];
             }
         }
         #endregion

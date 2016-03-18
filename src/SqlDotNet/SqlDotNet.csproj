@@ -89,6 +89,7 @@
     <Compile Include="Runtime\CommandChain\OpenCursor.cs" />
     <Compile Include="Runtime\CommandChain\PopToNextColumn.cs" />
     <Compile Include="Runtime\CommandChain\CreateResultSetRow.cs" />
+    <Compile Include="Runtime\Scope\ResultSet.cs" />
     <Compile Include="Runtime\Scope\Cursor.cs" />
     <Compile Include="Schema\ColumnDefinition.cs" />
     <Compile Include="Runtime\CommandChain\LoadConstantNode.cs" />

@@ -72,8 +72,21 @@ namespace SqlDotNet.Runtime
             else if (node is OpenResultSet)
             {
                 var openResultSet = (OpenResultSet)node;
+                var resultSet = scope.CreateResultSet(openResultSet.ResultSetName);
 
                 var fill = openResultSet.FindChildrenOfType<FillResultSet>().FirstOrDefault();
+                var cursor = scope.GetCursor(fill.Cursor);
+
+                for (int i = 0; i < cursor.Rows.Count; i++)
+                {
+                    cursor.CurrentRow = i;
+                    var cursorScope = scope.GetNew();
+
+                    foreach (var fillNode in fill.Children)
+                    {
+                        ExecuteCommand(fillNode, cursorScope);
+                    }
+                }
             }
             else if (node is OperatorNode)
             {
@@ -86,10 +99,40 @@ namespace SqlDotNet.Runtime
                 var constNode = (node as LoadConstantNode);
                 scope.Stack.Push(constNode.ConstantValue, constNode.DataType);
             }
+            // Constant handling
+            // Push constant node to the stack
+            else if (node is LoadColumnNode)
+            {
+                var colNode = (node as LoadColumnNode);
+                
+                scope.Stack.Push("Test", Compiler.DataType.Object);
+            }
             // Operator
             else if (node is OperatorNode)
             {
                 scope.Stack.Execute((node as OperatorNode).OpType);
+            }
+            // Operator
+            else if (node is CreateResultSetRow)
+            {
+                var rs = scope.GetResultSet();
+                rs.Rows.Add(new QueryResultRow());
+            }
+            // Operator
+            else if (node is PopToNextColumn)
+            {
+                var ptnxcNode = (PopToNextColumn)node;
+                var _top = scope.Stack.Pop();
+                object val = _top.Value;
+
+                var rs = scope.GetResultSet();
+
+                if (rs.Rows == null || rs.Rows.Count == 0)
+                {
+                    throw new Exception("Could not push to result set, because no row was created first.");
+                }
+
+                rs.Rows.Last().Columns.Add(ptnxcNode.ColumnName, val);
             }
 
         }

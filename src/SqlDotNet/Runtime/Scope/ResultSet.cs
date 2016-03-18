@@ -9,9 +9,9 @@ using SqlDotNet.CLRInterface;
 namespace SqlDotNet.Runtime
 {
     /// <summary>
-    /// Cursor scope item
+    /// ResultSet scope item
     /// </summary>
-    public class Cursor
+    public class ResultSet
     {
         #region Private Member
         private string name;
@@ -20,13 +20,13 @@ namespace SqlDotNet.Runtime
 
         #region Constructor
         /// <summary>
-        /// Create cursor
+        /// Create ResultSet
         /// </summary>
-        /// <param name="name">Unique cursor name</param>
-        public Cursor(string name)
+        /// <param name="name">Unique result set name</param>
+        public ResultSet(string name)
         {
             this.name = name;
-            CurrentRow = 0;
+            rows = new List<QueryResultRow>();
         }
         #endregion
 
@@ -57,12 +57,6 @@ namespace SqlDotNet.Runtime
             {
                 rows = value;
             }
-        }
-
-        public int CurrentRow
-        {
-            get;
-            set;
         }
         #endregion
     }
