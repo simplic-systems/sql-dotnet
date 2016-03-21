@@ -11,7 +11,7 @@ namespace SqlDotNet.Runtime
         public CallFunctionNode(CommandChainNode parent)
             : base(parent)
         {
-
+            Arugments = new List<string>();
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace SqlDotNet.Runtime
             set;
         }
 
-        public int ParameterCount
+        public IList<string> Arugments
         {
             get;
             set;

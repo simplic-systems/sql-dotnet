@@ -245,7 +245,51 @@ namespace SqlDotNet.Compiler
                         var insertNode = (node as InsertNode);
 
                         //var callFunctionNode = parent.CreateNode<CallFunctionNode>();
+                        int argCounter = 0;
+                        var values = insertNode.FindFirstOrDefaultChildrenOfType<ValuesNode>();
+                        if (values != null)
+                        {
+                            foreach (var valueNode in values.Children)
+                            {
+                                var __d__ = new DummyNode(valueNode);
 
+                                CompileExpression(strBuilder, __d__, parent, intendend);
+
+                                // Crate CChainNode
+                                parent.CreateNode<LoadArgumentNode>().Id = argCounter;
+
+                                strBuilder.AppendLine(string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, argCounter));
+                                argCounter++;
+                            }
+                        }
+
+                        // create call function node
+                        var callFunction = parent.CreateNode<Runtime.CallFunctionNode>();
+
+                        var into = insertNode.FindFirstOrDefaultChildrenOfType<IntoNode>();
+                        if (into != null)
+                        {
+                            var table = into.FindFirstOrDefaultChildrenOfType<TableNode>();
+                            var columnNodes = into.FindChildrenOfType<ColumnNode>();
+
+                            StringBuilder colBuilder = new StringBuilder();
+
+                            foreach (var col in columnNodes)
+                            {
+                                if (colBuilder.Length > 0)
+                                {
+                                    colBuilder.Append(", ");
+                                }
+
+                                colBuilder.Append(col.ColumnName);
+                                callFunction.Arugments.Add(col.ColumnName);
+                            }
+
+                            callFunction.FunctionName = table.TableName;
+                            callFunction.Type = "_insert_into";
+
+                            strBuilder.Append(string.Format(SIQLCommands.CALL_FUNCTION_PREP, "_insert_into", table.TableName, colBuilder.ToString()));
+                        }
                     }
                     break;
                 #endregion

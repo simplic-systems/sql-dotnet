@@ -124,8 +124,9 @@ namespace SqlDotNet.Compiler
         /// <see cref="CALL_FUNCTION"/> .{0} {1}
         /// {0}: Call function type. for example f or _insert_into (internal example)
         /// {1}: Name of the function
+        /// {2}: Parameter
         /// </summary>
-        public const string CALL_FUNCTION_PREP = CALL_FUNCTION + ".{0} {1}";
+        public const string CALL_FUNCTION_PREP = CALL_FUNCTION + ".{0} {1} ({2})";
 
         /// <summary>
         /// Push from stack to argument stack

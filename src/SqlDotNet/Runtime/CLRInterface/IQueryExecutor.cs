@@ -21,7 +21,7 @@ namespace SqlDotNet.CLRInterface
         /// <param name="columns">List of columns. If no columns are called, used an ordered object id or match by types</param>
         /// <param name="parameter">List of parameter</param>
         /// <returns>Amount of affected rows</returns>
-        int Insert(string tableName, IList<ColumnNode> columns, IList<QueryParameter> parameter);
+        int Insert(string tableName, IList<string> columns, IList<QueryParameter> parameter);
 
         IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, Runtime.FilterCursor filter, Runtime.Scope parameter);
 

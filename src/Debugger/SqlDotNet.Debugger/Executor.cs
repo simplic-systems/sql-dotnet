@@ -31,7 +31,7 @@ namespace SqlDotNet.Debugger
             throw new Exception("Table " + table ?? "" + " not found");
         }
 
-        public int Insert(string tableName, IList<ColumnNode> columns, IList<QueryParameter> parameter)
+        public int Insert(string tableName, IList<string> columns, IList<QueryParameter> parameter)
         {
             return 123;
         }

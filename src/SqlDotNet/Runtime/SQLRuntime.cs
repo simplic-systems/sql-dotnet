@@ -92,6 +92,27 @@ namespace SqlDotNet.Runtime
                 }
             }
 
+            else if (node is Runtime.CallFunctionNode)
+            {
+                var callFunc = (Runtime.CallFunctionNode)node;
+
+                // Execute insert
+                if (callFunc.Type == "_insert_into")
+                {
+                    // Get stack as array
+                    IList<QueryParameter> arguments = new List<QueryParameter>();
+                    while (scope.ArgumentStack.Count > 0)
+                    {
+                        QueryParameter parameter = new QueryParameter();
+                        parameter.Value = scope.ArgumentStack.PopFirst().Item2.Value;
+
+                        arguments.Add(parameter);
+                    }
+
+                    executor.Insert(callFunc.FunctionName, callFunc.Arugments, arguments);
+                }
+            }
+
             #region [LoadConstantNode]
             // Constant handling
             // Push constant node to the stack
@@ -107,8 +128,16 @@ namespace SqlDotNet.Runtime
             else if (node is LoadColumnNode)
             {
                 var colNode = (node as LoadColumnNode);
-                
+
                 scope.Stack.Push("Test", Compiler.DataType.Object);
+            }
+
+            else if (node is LoadArgumentNode)
+            {
+                var argNode = (node as LoadArgumentNode);
+
+                var topItem = scope.Stack.Pop();
+                scope.ArgumentStack.PushBack(new Tuple<int, StackItem>(argNode.Id, topItem));
             }
 
             #region [OperatorNode]
