@@ -12,9 +12,104 @@ namespace SqlDotNet.Debugger
 {
     internal class Executor : IQueryExecutor
     {
+        private void AssertFunction(string name, IList<QueryParameter> parameter, int minParameter, int maxParameter, DataType[] types)
+        {
+            if (parameter.Count > maxParameter || parameter.Count < minParameter)
+            {
+                throw new ArgumentException(string.Format("`{0}` expected at least {1} parameter.", name, minParameter));
+            }
+        }
+
         public Tuple<object, DataType> CallFunction(string name, IList<QueryParameter> parameter)
         {
-            return new Tuple<object, DataType>(12, DataType.Int32);
+            name = name.ToLower();
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                switch (name)
+                {
+                    #region [Concat]
+                    case "concat":
+                        {
+                            if (parameter == null || parameter.Count < 1)
+                            {
+                                throw new ArgumentException("`Concat` requires atleast one argument.");
+                            }
+
+                            StringBuilder sb = new StringBuilder();
+                            foreach (var p in parameter)
+                            {
+                                sb.Append(p.Value);
+                            }
+                            return new Tuple<object, DataType>(sb.ToString(), DataType.Str);
+                        }
+                    #endregion
+
+                    #region [Trim]
+                    case "ltrim":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().TrimStart(), DataType.Str);
+                        }
+                    case "rtrim":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().TrimEnd(), DataType.Str);
+                        }
+                    case "trim":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().Trim(), DataType.Str);
+                        }
+                    #endregion
+
+                    #region [Len]
+                    case "len":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().Length, DataType.Int32);
+                        }
+                    #endregion
+
+                    #region [Lower/Upper]
+                    case "lower":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().ToLower(), DataType.Int32);
+                        }
+
+                    case "upper":
+                        {
+                            AssertFunction(name, parameter, 1, 1, new DataType[] { DataType.Str });
+
+                            return new Tuple<object, DataType>(parameter.First().Value.ToString().ToUpper(), DataType.Int32);
+                        }
+                    #endregion
+
+                    case "current_date":
+                    case "curdate":
+                    case "current_time":
+                    case "curtime":
+                        {
+                            if (parameter == null || parameter.Count == 0)
+                            {
+                                return new Tuple<object, DataType>(DateTime.Now, DataType.Object);
+                            }
+                            else
+                            {
+                                throw new ArgumentException("`current_date` does not expect any arguments");
+                            }
+                        }
+
+
+                }
+            }
+
+            throw new Exception("Could not found function " + name ?? "--noname--");
         }
 
         public TableDefinition GetTableSchema(string owner, string table)

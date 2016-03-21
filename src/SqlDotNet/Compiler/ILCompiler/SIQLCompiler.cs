@@ -340,6 +340,10 @@ namespace SqlDotNet.Compiler
                         {
                             val = val.Substring(0, val.Length - 1);
                         }
+                        else if (val.StartsWith("'") && val.EndsWith("'"))
+                        {
+                            val = val.ToString().Substring(1, val.Length - 2);
+                        }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_CONST_PREP, type, val));
                         var ldc = parent.CreateNode<LoadConstantCCNode>();

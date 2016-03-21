@@ -90,7 +90,11 @@ namespace SqlDotNet.Compiler
 
                 var constType = parserConfig.GetConstDataType(token);
 
-                if (SyntaxTreeFactory.Singleton.StaticTokens.ContainsKey(tcontent))
+                if (token.Content.StartsWith("'") && token.Content.EndsWith("'"))
+                {
+                    token.Type = TokenType.Constant;
+                }
+                else if (SyntaxTreeFactory.Singleton.StaticTokens.ContainsKey(tcontent))
                 {
                     token.Type = SyntaxTreeFactory.Singleton.StaticTokens[tcontent].Type;
                 }
