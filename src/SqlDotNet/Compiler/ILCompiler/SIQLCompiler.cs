@@ -161,6 +161,16 @@ namespace SqlDotNet.Compiler
 
                             if (alias == null || string.IsNullOrWhiteSpace(alias.Alias))
                             {
+                                if (_node.Children.Count == 0 && _node is ColumnNode)
+                                {
+                                    var colChild = (ColumnNode)_node;
+                                    resultSetDefnList.Add(colChild.ColumnName);
+                                    resultSetDefinition.Append(colChild.ColumnName);
+
+                                    continue;
+                                }
+
+
                                 resultSetDefnList.Add(string.Format("__col{0}", unnamedColumns));
                                 resultSetDefinition.Append(string.Format("__col{0}", unnamedColumns));
                                 unnamedColumns++;
@@ -205,8 +215,17 @@ namespace SqlDotNet.Compiler
                                 }
                                 else
                                 {
-                                    aliasStr = string.Format("__col{0}", unnamedColumns);
-                                    unnamedColumns++;
+                                    if (_node.Children.Count == 0 && _node is ColumnNode)
+                                    {
+                                        var colChild = (ColumnNode)_node;
+                                        aliasStr = colChild.ColumnName;
+                                    }
+                                    else
+                                    {
+
+                                        aliasStr = string.Format("__col{0}", unnamedColumns);
+                                        unnamedColumns++;
+                                    }
                                 }
 
                                 strBuilder.AppendLine("\t" + intendendStr + string.Format(SIQLCommands.RESULTSET_POP_TO_NEXT_COLUMN_REP, aliasStr));
