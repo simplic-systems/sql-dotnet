@@ -9,9 +9,9 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class RootNode : CommandChainNode
+    internal class RootCCNode : CommandChainNode
     {
-        public RootNode(CommandChainNode parent)
+        public RootCCNode(CommandChainNode parent)
             : base(parent)
         {
 

@@ -36,7 +36,7 @@ namespace SqlDotNet.Debugger
             return 123;
         }
 
-        public IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, FilterCursor filter, Scope parameter)
+        public IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, FilterCursorCCNode filter, Scope parameter)
         {
             var returnValue = new List<QueryResultRow>();
 

@@ -44,8 +44,8 @@ namespace SqlDotNet.Compiler
         public CompiledQuery Compile(EntryPointNode node)
         {
             result = new CompiledQuery();
-            result.CommandChainRoot = new RootNode(null);
-            ((RootNode)(result.CommandChainRoot)).Version = SIQL_VERSION;
+            result.CommandChainRoot = new RootCCNode(null);
+            ((RootCCNode)(result.CommandChainRoot)).Version = SIQL_VERSION;
 
             StringBuilder strBuilder = new StringBuilder();
 
@@ -108,7 +108,7 @@ namespace SqlDotNet.Compiler
                             }
 
                             strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CURSOR_OPEN_PREP, "tbl", cursorName, columnsStr.ToString()));
-                            var openCursorNode = parent.CreateNode<OpenCursor>();
+                            var openCursorNode = parent.CreateNode<OpenCursorCCNode>();
                             openCursorNode.Columns = tblDef.Columns.ToList();
                             openCursorNode.CursorName = cursorName;
                             openCursorNode.CursorType = "tbl";
@@ -125,7 +125,7 @@ namespace SqlDotNet.Compiler
 
                             // Append filter
                             var whereNode = node.FindFirstOrDefaultChildrenOfType<WhereNode>();
-                            var cursorFilter = openCursorNode.CreateNode<FilterCursor>();
+                            var cursorFilter = openCursorNode.CreateNode<FilterCursorCCNode>();
 
                             if (whereNode != null)
                             {
@@ -173,12 +173,12 @@ namespace SqlDotNet.Compiler
                         }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_OPEN_PREP, resultSetName, "(" + resultSetDefinition.ToString() + ")"));
-                        var resultSetNode = parent.CreateNode<OpenResultSet>();
+                        var resultSetNode = parent.CreateNode<OpenResultSetCCNode>();
                         resultSetNode.ResultSetName = resultSetName;
                         resultSetNode.ResultSetDefinition = resultSetDefnList;
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.RESULTSET_FILL_PREP, resultSetName, string.Format("({0})", (cursorName ?? ""))));
-                        var fillResultSetNode = resultSetNode.CreateNode<FillResultSet>();
+                        var fillResultSetNode = resultSetNode.CreateNode<FillResultSetCCNode>();
                         fillResultSetNode.Cursor = cursorName;
 
                         strBuilder.AppendLine(intendendStr + "{");
@@ -187,7 +187,7 @@ namespace SqlDotNet.Compiler
                         if (lst != null)
                         {
                             strBuilder.AppendLine("\t" + intendendStr + SIQLCommands.RESULTSET_CREATE_ROW);
-                            fillResultSetNode.CreateNode<CreateResultSetRow>();
+                            fillResultSetNode.CreateNode<CreateResultSetRowCCNode>();
 
                             foreach (var _node in lst.Children)
                             {
@@ -210,7 +210,7 @@ namespace SqlDotNet.Compiler
                                 }
 
                                 strBuilder.AppendLine("\t" + intendendStr + string.Format(SIQLCommands.RESULTSET_POP_TO_NEXT_COLUMN_REP, aliasStr));
-                                fillResultSetNode.CreateNode<PopToNextColumn>().ColumnName = aliasStr;
+                                fillResultSetNode.CreateNode<PopToNextColumnCCNode>().ColumnName = aliasStr;
                             }
                         }
 
@@ -232,9 +232,24 @@ namespace SqlDotNet.Compiler
                         }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_COLUMN_PREP, name));
-                        var colNode = parent.CreateNode<LoadColumnNode>();
+                        var colNode = parent.CreateNode<LoadColumnCCNode>();
                         colNode.Name = columnNode.ColumnName;
                         colNode.Cursor = columnNode.Owner;
+                    }
+                    break;
+                #endregion
+
+                #region [SyntaxNodeType.Argument]
+                case SyntaxNodeType.Argument:
+                    {
+                        var argumentNode = (node as ArgumentNode);
+
+                        CompileExpression(strBuilder, argumentNode, parent, intendend);
+
+                        // Crate CChainNode
+                        int argCounter = (parent.FindChildrenOfType<LoadArgumentCCNode>().Count - 1) + 1;
+                        parent.CreateNode<LoadArgumentCCNode>().Id = argCounter;
+                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, argCounter));
                     }
                     break;
                 #endregion
@@ -245,26 +260,17 @@ namespace SqlDotNet.Compiler
                         var insertNode = (node as InsertNode);
 
                         //var callFunctionNode = parent.CreateNode<CallFunctionNode>();
-                        int argCounter = 0;
                         var values = insertNode.FindFirstOrDefaultChildrenOfType<ValuesNode>();
                         if (values != null)
                         {
                             foreach (var valueNode in values.Children)
                             {
-                                var __d__ = new DummyNode(valueNode);
-
-                                CompileExpression(strBuilder, __d__, parent, intendend);
-
-                                // Crate CChainNode
-                                parent.CreateNode<LoadArgumentNode>().Id = argCounter;
-
-                                strBuilder.AppendLine(string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, argCounter));
-                                argCounter++;
+                                Compile(strBuilder, valueNode, parent, intendend);
                             }
                         }
 
                         // create call function node
-                        var callFunction = parent.CreateNode<Runtime.CallFunctionNode>();
+                        var callFunction = parent.CreateNode<Runtime.CallFunctionCCNode>();
 
                         var into = insertNode.FindFirstOrDefaultChildrenOfType<IntoNode>();
                         if (into != null)
@@ -309,7 +315,7 @@ namespace SqlDotNet.Compiler
                     if (constNode.DataType == DataType.Null)
                     {
                         strBuilder.AppendLine("ldnull");
-                        var ldNull = parent.CreateNode<LoadConstantNode>();
+                        var ldNull = parent.CreateNode<LoadConstantCCNode>();
                         ldNull.ConstantValue = null;
                         ldNull.DataType = DataType.Null;
                     }
@@ -324,7 +330,7 @@ namespace SqlDotNet.Compiler
                         }
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_CONST_PREP, type, val));
-                        var ldc = parent.CreateNode<LoadConstantNode>();
+                        var ldc = parent.CreateNode<LoadConstantCCNode>();
                         ldc.ConstantValue = val;
                         ldc.DataType = DataTypeHelper.StrToDataType(type);
                     }
@@ -338,51 +344,51 @@ namespace SqlDotNet.Compiler
                         {
                             case OperatorType.Add:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_ADD);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Add;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Add;
                                 break;
                             case OperatorType.Sub:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SUB);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Sub;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Sub;
                                 break;
                             case OperatorType.Mul:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_MUL);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Mul;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Mul;
                                 break;
                             case OperatorType.Div:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_DIV);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Div;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Div;
                                 break;
                             case OperatorType.Equal:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_EQ);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Equal;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Equal;
                                 break;
                             case OperatorType.Unequal:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_UEQ);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Unequal;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Unequal;
                                 break;
                             case OperatorType.Greater:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GT);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Greater;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Greater;
                                 break;
                             case OperatorType.Smaller:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SM);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Smaller;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Smaller;
                                 break;
                             case OperatorType.GreaterEqual:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_GTEQ);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.GreaterEqual;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.GreaterEqual;
                                 break;
                             case OperatorType.SmallerEqual:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_SMEQ);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.SmallerEqual;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.SmallerEqual;
                                 break;
                             case OperatorType.And:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_AND);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.And;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.And;
                                 break;
                             case OperatorType.Or:
                                 strBuilder.AppendLine(intendendStr + SIQLCommands.OP_OR);
-                                parent.CreateNode<Runtime.OperatorNode>().OpType = OperatorType.Or;
+                                parent.CreateNode<Runtime.OperatorCCNode>().OpType = OperatorType.Or;
                                 break;
                         }
                     }
@@ -396,15 +402,14 @@ namespace SqlDotNet.Compiler
             string intendendStr = new string('\t', intendend);
 
             StringBuilder argBuilder = new StringBuilder();
-            argBuilder.Append(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, functionType, (node as SyntaxTreeNode).Token.Content) + "(");
+            argBuilder.Append("(");
             bool argsFound = false;
 
             int i = 0;
             foreach (var args in node.FindChildrenOfType<ArgumentNode>())
             {
                 // Parse as expression and push result on the argument stack
-                // CompileExpression(strBuilder, args, null, intendend);
-                strBuilder.AppendLine((new string('\t', intendend)) + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
+                Compile(strBuilder, args, parent, intendend);
 
                 if (argsFound)
                 {
@@ -420,7 +425,10 @@ namespace SqlDotNet.Compiler
             argBuilder.Append(")");
 
             // Call the function
-            strBuilder.AppendLine(argBuilder.ToString());
+            strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, functionType, (node as SyntaxTreeNode).Token.Content, argBuilder.ToString()));
+            var callFunction = parent.CreateNode<Runtime.CallFunctionCCNode>();
+            callFunction.FunctionName = (node as SyntaxTreeNode).Token.Content;
+            callFunction.Type = functionType;
         }
 
         #region [CompileExpression]

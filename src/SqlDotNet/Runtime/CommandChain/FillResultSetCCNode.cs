@@ -9,21 +9,15 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class OpenResultSet : CommandChainNode
+    internal class FillResultSetCCNode : CommandChainNode
     {
-        public OpenResultSet(CommandChainNode parent)
+        public FillResultSetCCNode(CommandChainNode parent)
             : base(parent)
         {
 
         }
 
-        public string ResultSetName
-        {
-            get;
-            set;
-        }
-
-        public IList<string> ResultSetDefinition
+        public string Cursor
         {
             get;
             set;

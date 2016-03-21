@@ -16,6 +16,7 @@ namespace SqlDotNet.Runtime
         #region Private Member
         private Scope rootScope;
         private CLRInterface.IQueryExecutor executor;
+        private int runtimeCursor;
         #endregion
 
         #region Constructor
@@ -58,12 +59,12 @@ namespace SqlDotNet.Runtime
         private void ExecuteCommand(CommandChainNode node, Scope scope)
         {
             #region [OpenCursor]
-            if (node is OpenCursor)
+            if (node is OpenCursorCCNode)
             {
-                var openCursorNode = (OpenCursor)node;
+                var openCursorNode = (OpenCursorCCNode)node;
                 var cursor = scope.CreateCursor(openCursorNode.CursorName);
 
-                FilterCursor filter = openCursorNode.FindChildrenOfType<FilterCursor>().FirstOrDefault();
+                FilterCursorCCNode filter = openCursorNode.FindChildrenOfType<FilterCursorCCNode>().FirstOrDefault();
 
                 if (openCursorNode.CursorType == "tbl")
                 {
@@ -72,13 +73,30 @@ namespace SqlDotNet.Runtime
             }
             #endregion
 
-            else if (node is OpenResultSet)
+            else if (node is OpenResultSetCCNode)
             {
-                var openResultSet = (OpenResultSet)node;
+                var openResultSet = (OpenResultSetCCNode)node;
                 var resultSet = scope.CreateResultSet(openResultSet.ResultSetName);
 
-                var fill = openResultSet.FindChildrenOfType<FillResultSet>().FirstOrDefault();
-                var cursor = scope.GetCursor(fill.Cursor);
+                var fill = openResultSet.FindChildrenOfType<FillResultSetCCNode>().FirstOrDefault();
+
+
+                Cursor cursor = null;
+
+                // This will be used for select * from ....
+                if (fill.Cursor != null)
+                {
+                    cursor = scope.GetCursor(fill.Cursor);
+                }
+                // This will be used for select func(1, 2, ...) ... !Without from clause
+                else
+                {
+                    cursor = scope.CreateCursor("runtimeCursor" + runtimeCursor.ToString());
+                    cursor.Rows = new List<QueryResultRow>();
+                    cursor.Rows.Add(new QueryResultRow()); // Add emtpy dummy row
+                    cursor.CurrentRow = 0;
+                    runtimeCursor++;
+                }
 
                 for (int i = 0; i < cursor.Rows.Count; i++)
                 {
@@ -92,9 +110,10 @@ namespace SqlDotNet.Runtime
                 }
             }
 
-            else if (node is Runtime.CallFunctionNode)
+            #region [CallFunctionNode]
+            else if (node is Runtime.CallFunctionCCNode)
             {
-                var callFunc = (Runtime.CallFunctionNode)node;
+                var callFunc = (Runtime.CallFunctionCCNode)node;
 
                 // Execute insert
                 if (callFunc.Type == "_insert_into")
@@ -111,45 +130,62 @@ namespace SqlDotNet.Runtime
 
                     executor.Insert(callFunc.FunctionName, callFunc.Arugments, arguments);
                 }
+                if (callFunc.Type == "f")
+                {
+                    // Get stack as array
+                    IList<QueryParameter> arguments = new List<QueryParameter>();
+                    while (scope.ArgumentStack.Count > 0)
+                    {
+                        QueryParameter parameter = new QueryParameter();
+                        parameter.Value = scope.ArgumentStack.PopFirst().Item2.Value;
+
+                        arguments.Add(parameter);
+                    }
+
+                    executor.CallFunction(callFunc.FunctionName, arguments);
+                }
             }
+            #endregion
 
             #region [LoadConstantNode]
             // Constant handling
             // Push constant node to the stack
-            else if (node is LoadConstantNode)
+            else if (node is LoadConstantCCNode)
             {
-                var constNode = (node as LoadConstantNode);
+                var constNode = (node as LoadConstantCCNode);
                 scope.Stack.Push(constNode.ConstantValue, constNode.DataType);
             }
             #endregion
 
             // Constant handling
             // Push constant node to the stack
-            else if (node is LoadColumnNode)
+            else if (node is LoadColumnCCNode)
             {
-                var colNode = (node as LoadColumnNode);
+                var colNode = (node as LoadColumnCCNode);
 
                 scope.Stack.Push("Test", Compiler.DataType.Object);
             }
 
-            else if (node is LoadArgumentNode)
+            #region [LoadArgumentNode]
+            else if (node is LoadArgumentCCNode)
             {
-                var argNode = (node as LoadArgumentNode);
+                var argNode = (node as LoadArgumentCCNode);
 
                 var topItem = scope.Stack.Pop();
                 scope.ArgumentStack.PushBack(new Tuple<int, StackItem>(argNode.Id, topItem));
             }
+            #endregion
 
             #region [OperatorNode]
             // Operator
-            else if (node is OperatorNode)
+            else if (node is OperatorCCNode)
             {
-                scope.Stack.Execute((node as OperatorNode).OpType);
+                scope.Stack.Execute((node as OperatorCCNode).OpType);
             }
             #endregion
 
             #region [CreateResultSetRow]
-            else if (node is CreateResultSetRow)
+            else if (node is CreateResultSetRowCCNode)
             {
                 var rs = scope.GetResultSet();
                 rs.Rows.Add(new QueryResultRow());
@@ -158,9 +194,9 @@ namespace SqlDotNet.Runtime
 
             #region [PopToNextColumn]
             // Operator
-            else if (node is PopToNextColumn)
+            else if (node is PopToNextColumnCCNode)
             {
-                var ptnxcNode = (PopToNextColumn)node;
+                var ptnxcNode = (PopToNextColumnCCNode)node;
                 var _top = scope.Stack.Pop();
                 object val = _top.Value;
 

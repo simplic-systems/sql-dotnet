@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SqlDotNet.Runtime
 {
-    public class CallFunctionNode : CommandChainNode
+    public class CallFunctionCCNode : CommandChainNode
     {
-        public CallFunctionNode(CommandChainNode parent)
+        public CallFunctionCCNode(CommandChainNode parent)
             : base(parent)
         {
             Arugments = new List<string>();

@@ -9,15 +9,18 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class FillResultSet : CommandChainNode
+    internal class PopToNextColumnCCNode : CommandChainNode
     {
-        public FillResultSet(CommandChainNode parent)
+        public PopToNextColumnCCNode(CommandChainNode parent)
             : base(parent)
         {
-
+            
         }
 
-        public string Cursor
+        /// <summary>
+        /// Column name/alias
+        /// </summary>
+        public string ColumnName
         {
             get;
             set;

@@ -10,9 +10,9 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Execute operator
     /// </summary>
-    internal class OperatorNode : CommandChainNode
+    internal class OperatorCCNode : CommandChainNode
     {
-        public OperatorNode(CommandChainNode parent)
+        public OperatorCCNode(CommandChainNode parent)
             : base(parent)
         {
 

@@ -23,7 +23,7 @@ namespace SqlDotNet.CLRInterface
         /// <returns>Amount of affected rows</returns>
         int Insert(string tableName, IList<string> columns, IList<QueryParameter> parameter);
 
-        IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, Runtime.FilterCursor filter, Runtime.Scope parameter);
+        IList<QueryResultRow> Select(string tableName, bool isScalar, bool distinctValues, IList<ColumnDefinition> columns, Runtime.FilterCursorCCNode filter, Runtime.Scope parameter);
 
         /// <summary>
         /// Call an sql function or aggregation function

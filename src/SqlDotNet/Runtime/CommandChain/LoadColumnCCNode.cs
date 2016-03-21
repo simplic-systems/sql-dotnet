@@ -10,18 +10,24 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Load a constant value onto the stack
     /// </summary>
-    internal class LoadArgumentNode : CommandChainNode
+    internal class LoadColumnCCNode : CommandChainNode
     {
-        public LoadArgumentNode(CommandChainNode parent)
+        public LoadColumnCCNode(CommandChainNode parent)
             : base(parent)
         {
 
         }
 
+        public string Name
+        {
+            get;
+            set;
+        }
+
         /// <summary>
-        /// Order id
+        /// Name of the cursor
         /// </summary>
-        public int Id
+        public string Cursor
         {
             get;
             set;
