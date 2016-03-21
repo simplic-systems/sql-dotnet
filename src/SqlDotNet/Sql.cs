@@ -91,7 +91,7 @@ namespace SqlDotNet
         /// <param name="query">Compiled query instance</param>
         /// <param name="parameter">List of parameter</param>
         /// <returns>Return value, amount for none query objects, else query result</returns>
-        public object Execute(Compiler.CompiledQuery query, IList<CLRInterface.QueryParameter> parameter)
+        public Runtime.ResultSet Execute(Compiler.CompiledQuery query, IList<CLRInterface.QueryParameter> parameter)
         {
             if (query == null)
             {
@@ -105,7 +105,7 @@ namespace SqlDotNet
             Runtime.SCLRuntime runtime = new Runtime.SCLRuntime(executor, parameter);
             runtime.Execute(query.CommandChainRoot);
 
-            return null;
+            return runtime.ResultSet;
         }
 
         #region [Helper]

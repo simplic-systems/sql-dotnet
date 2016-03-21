@@ -216,7 +216,31 @@ namespace SqlDotNet.Debugger
 
                 if (launch)
                 {
-                    parser.Execute(res, new List<QueryParameter>());
+                    var resultSet = parser.Execute(res, new List<QueryParameter>());
+
+                    resultGridView.Items.Clear();
+                    resultGridView.Columns.Clear();
+
+                    if (resultSet != null)
+                    {
+                        foreach (var def in resultSet.Definition)
+                        {
+                            var textBoxColumn = new DataGridTextColumn();
+                            textBoxColumn.Header = def.Key;
+                            textBoxColumn.IsReadOnly = true;
+                            textBoxColumn.Binding = new Binding("[" + def.Key + "]");
+
+                            resultGridView.Columns.Add(textBoxColumn);
+                        }
+
+                        if (resultSet.Rows != null)
+                        {
+                            foreach (var row in resultSet.Rows)
+                            {
+                                resultGridView.Items.Add(row.Columns);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)

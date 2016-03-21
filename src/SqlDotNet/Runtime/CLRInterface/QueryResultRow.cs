@@ -21,7 +21,7 @@ namespace SqlDotNet.CLRInterface
         /// </summary>
         public QueryResultRow()
         {
-            columns = new Dictionary<string, object>();
+            columns = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         }
         #endregion
 

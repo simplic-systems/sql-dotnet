@@ -324,8 +324,8 @@ namespace SqlDotNet.Compiler
 
                         strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_CONST_PREP, type, val));
                         var ldc = parent.CreateNode<LoadConstantCCNode>();
-                        ldc.ConstantValue = val;
                         ldc.DataType = DataTypeHelper.StrToDataType(type);
+                        ldc.ConstantValue = DataTypeHelper.StringValueToObject(val, ldc.DataType);
                     }
                     break;
                 #endregion

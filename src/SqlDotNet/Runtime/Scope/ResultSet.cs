@@ -16,6 +16,7 @@ namespace SqlDotNet.Runtime
         #region Private Member
         private string name;
         private IList<CLRInterface.QueryResultRow> rows;
+        private IDictionary<string, DataType> definition;
         #endregion
 
         #region Constructor
@@ -27,6 +28,8 @@ namespace SqlDotNet.Runtime
         {
             this.name = name;
             rows = new List<QueryResultRow>();
+            Cursors = new List<string>();
+            definition = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase);
         }
         #endregion
 
@@ -56,6 +59,31 @@ namespace SqlDotNet.Runtime
             internal set
             {
                 rows = value;
+            }
+        }
+
+        /// <summary>
+        /// List of cursors which fills this result set, currently only one supported
+        /// </summary>
+        public IList<string> Cursors
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Result-Set definition
+        /// </summary>
+        public IDictionary<string, DataType> Definition
+        {
+            get
+            {
+                return definition;
+            }
+
+            set
+            {
+                definition = value;
             }
         }
         #endregion

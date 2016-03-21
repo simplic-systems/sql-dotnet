@@ -79,6 +79,11 @@ namespace SqlDotNet.Runtime
                 var openResultSet = (OpenResultSetCCNode)node;
                 var resultSet = scope.CreateResultSet(openResultSet.ResultSetName);
 
+                foreach (var def in openResultSet.ResultSetDefinition)
+                {
+                    resultSet.Definition.Add(def, Compiler.DataType.None);
+                }
+
                 var fill = openResultSet.FindChildrenOfType<FillResultSetCCNode>().FirstOrDefault();
 
 
@@ -88,6 +93,7 @@ namespace SqlDotNet.Runtime
                 if (fill.Cursor != null)
                 {
                     cursor = scope.GetCursor(fill.Cursor);
+                    resultSet.Cursors.Add(cursor.Name);
                 }
                 // This will be used for select func(1, 2, ...) ... !Without from clause
                 else
@@ -170,7 +176,13 @@ namespace SqlDotNet.Runtime
             {
                 var colNode = (node as LoadColumnCCNode);
 
-                scope.Stack.Push("Test", Compiler.DataType.Object);
+                var resultSet = scope.GetResultSet();
+                var cursor = scope.GetCursor(resultSet.Cursors.First());
+
+                var row = cursor.Rows[cursor.CurrentRow];
+                var col = row.Columns[colNode.Name];
+
+                scope.Stack.Push(col, Compiler.DataType.Object);
             }
 
             #region [LoadArgumentNode]
@@ -249,7 +261,16 @@ namespace SqlDotNet.Runtime
         #endregion
 
         #region Public Member
-
+        /// <summary>
+        /// Get the result of the sql-statement
+        /// </summary>
+        public ResultSet ResultSet
+        {
+            get
+            {
+                return rootScope.GetResultSet();
+            }
+        }
         #endregion
     }
 }

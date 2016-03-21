@@ -81,6 +81,11 @@
             <TabItem Header="IL-Code">
                 <avalonEdit:TextEditor Name="ilCodeTextBox" Margin="3" FontFamily="Consolas" FontSize="10pt" Grid.Row="1"/>
             </TabItem>
+            <TabItem Header="Result">
+                <DataGrid x:Name="resultGridView" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False">
+                    
+                </DataGrid>
+            </TabItem>
             <TabItem Header="Output">
                 <TextBox x:Name="outputTextBox" Margin="3" FontFamily="Consolas" />
             </TabItem>
