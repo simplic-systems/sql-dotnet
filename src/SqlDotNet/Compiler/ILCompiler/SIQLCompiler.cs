@@ -239,21 +239,6 @@ namespace SqlDotNet.Compiler
                     break;
                 #endregion
 
-                #region [SyntaxNodeType.Argument]
-                case SyntaxNodeType.Argument:
-                    {
-                        var argumentNode = (node as ArgumentNode);
-
-                        CompileExpression(strBuilder, argumentNode, parent, intendend);
-
-                        // Crate CChainNode
-                        int argCounter = (parent.FindChildrenOfType<LoadArgumentCCNode>().Count - 1) + 1;
-                        parent.CreateNode<LoadArgumentCCNode>().Id = argCounter;
-                        strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, argCounter));
-                    }
-                    break;
-                #endregion
-
                 #region [SyntaxNodeType.Insert]
                 case SyntaxNodeType.Insert:
                     {
@@ -263,9 +248,17 @@ namespace SqlDotNet.Compiler
                         var values = insertNode.FindFirstOrDefaultChildrenOfType<ValuesNode>();
                         if (values != null)
                         {
-                            foreach (var valueNode in values.Children)
                             {
-                                Compile(strBuilder, valueNode, parent, intendend);
+                                int i = 0;
+                                foreach (var args in values.FindChildrenOfType<ArgumentNode>())
+                                {
+                                    CompileExpression(strBuilder, args, parent, intendend);
+
+                                    // Crate CChainNode
+                                    parent.CreateNode<LoadArgumentCCNode>().Id = i;
+                                    strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
+                                    i++;
+                                }
                             }
                         }
 
@@ -402,14 +395,19 @@ namespace SqlDotNet.Compiler
             string intendendStr = new string('\t', intendend);
 
             StringBuilder argBuilder = new StringBuilder();
-            argBuilder.Append("(");
             bool argsFound = false;
+
+            IList<string> argList = new List<string>();
 
             int i = 0;
             foreach (var args in node.FindChildrenOfType<ArgumentNode>())
             {
                 // Parse as expression and push result on the argument stack
-                Compile(strBuilder, args, parent, intendend);
+                CompileExpression(strBuilder, args, parent, intendend);
+
+                // Crate CChainNode
+                parent.CreateNode<LoadArgumentCCNode>().Id = i;
+                strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
 
                 if (argsFound)
                 {
@@ -417,18 +415,18 @@ namespace SqlDotNet.Compiler
                 }
 
                 argBuilder.Append("_dummy_fp" + i.ToString());
-
+                argList.Add("_dummy_fp" + i.ToString());
                 argsFound = true;
                 i++;
             }
 
-            argBuilder.Append(")");
-
             // Call the function
             strBuilder.AppendLine(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, functionType, (node as SyntaxTreeNode).Token.Content, argBuilder.ToString()));
+
             var callFunction = parent.CreateNode<Runtime.CallFunctionCCNode>();
             callFunction.FunctionName = (node as SyntaxTreeNode).Token.Content;
             callFunction.Type = functionType;
+            callFunction.Arugments = argList;
         }
 
         #region [CompileExpression]

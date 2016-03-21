@@ -1,4 +1,5 @@
-﻿using SqlDotNet.CLRInterface;
+﻿using Simplic.Collections.Generic;
+using SqlDotNet.CLRInterface;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -119,30 +120,36 @@ namespace SqlDotNet.Runtime
                 if (callFunc.Type == "_insert_into")
                 {
                     // Get stack as array
-                    IList<QueryParameter> arguments = new List<QueryParameter>();
+                    Dequeue<QueryParameter> arguments = new Dequeue<QueryParameter>();
                     while (scope.ArgumentStack.Count > 0)
                     {
                         QueryParameter parameter = new QueryParameter();
                         parameter.Value = scope.ArgumentStack.PopFirst().Item2.Value;
 
-                        arguments.Add(parameter);
+                        // We need to push to the front here, because we have to invert the stack.
+                        // For example, calling fun (1, 2, 3) puts 3, 2, 1 on the stack. By adding tham backwards, the list will be correct later
+                        arguments.PushFront(parameter);
                     }
 
-                    executor.Insert(callFunc.FunctionName, callFunc.Arugments, arguments);
+                    var amount = executor.Insert(callFunc.FunctionName, callFunc.Arugments, arguments.ToList());
+                    scope.Stack.Push(amount, Compiler.DataType.Int64);
                 }
                 if (callFunc.Type == "f")
                 {
                     // Get stack as array
-                    IList<QueryParameter> arguments = new List<QueryParameter>();
-                    while (scope.ArgumentStack.Count > 0)
+                    Dequeue<QueryParameter> arguments = new Dequeue<QueryParameter>();
+                    for(int i = 0; i < callFunc.Arugments.Count; i++)
                     {
                         QueryParameter parameter = new QueryParameter();
                         parameter.Value = scope.ArgumentStack.PopFirst().Item2.Value;
 
-                        arguments.Add(parameter);
+                        // We need to push to the front here, because we have to invert the stack.
+                        // For example, calling fun (1, 2, 3) puts 3, 2, 1 on the stack. By adding tham backwards, the list will be correct later
+                        arguments.PushFront(parameter);
                     }
 
-                    executor.CallFunction(callFunc.FunctionName, arguments);
+                    var res = executor.CallFunction(callFunc.FunctionName, arguments.ToList());
+                    scope.Stack.Push(res.Item1, res.Item2);
                 }
             }
             #endregion
@@ -172,7 +179,7 @@ namespace SqlDotNet.Runtime
                 var argNode = (node as LoadArgumentCCNode);
 
                 var topItem = scope.Stack.Pop();
-                scope.ArgumentStack.PushBack(new Tuple<int, StackItem>(argNode.Id, topItem));
+                scope.ArgumentStack.PushFront(new Tuple<int, StackItem>(argNode.Id, topItem));
             }
             #endregion
 

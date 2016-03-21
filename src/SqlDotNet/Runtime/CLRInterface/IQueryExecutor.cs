@@ -30,8 +30,8 @@ namespace SqlDotNet.CLRInterface
         /// </summary>
         /// <param name="name">Name of the function</param>
         /// <param name="parameter">List of parameter</param>
-        /// <returns>Return value as object</returns>
-        object CallFunction(string name, IList<QueryParameter> parameter);
+        /// <returns>Return value as object with specific type</returns>
+        Tuple<object, DataType> CallFunction(string name, IList<QueryParameter> parameter);
 
         /// <summary>
         /// Get the table definitions

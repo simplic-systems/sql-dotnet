@@ -20,6 +20,14 @@ namespace SqlDotNet.Compiler
             Children.Enqueue(child);
         }
 
+        /// <summary>
+        /// Create empty dummy node
+        /// </summary>
+        public DummyNode() : base(null, SyntaxNodeType.Dummy, null)
+        {
+            
+        }
+
         public override string DebugText
         {
             get

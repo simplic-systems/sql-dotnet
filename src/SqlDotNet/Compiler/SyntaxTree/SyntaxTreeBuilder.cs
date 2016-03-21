@@ -398,7 +398,17 @@ namespace SqlDotNet.Compiler
                                             }
 
                                             // Get column list
-                                            var lst = ParseExpressionList(valuesNode, enclosingTokens, symbolTable, false, new TokenType[] { }, valuesNode);
+                                            DummyNode dummy = new DummyNode();
+                                            var lst = ParseExpressionList(null, enclosingTokens, symbolTable, false, new TokenType[] { }, dummy);
+
+                                            foreach (var d in dummy.Children)
+                                            {
+                                                var arg = valuesNode.CreateChildNode<ArgumentNode>(null);
+                                                arg.Children.Enqueue(d);
+                                                d.ParentNode = arg;
+                                            }
+
+                                            dummy.Children.Clear();
                                         }
                                         else if (next.Type == TokenType.Values)
                                         {
@@ -755,7 +765,9 @@ namespace SqlDotNet.Compiler
                         #region [TokenType.Comma]
                         case TokenType.Comma:
                             // Cancel the "loop"
-                            if (parent.NodeType == SyntaxNodeType.ReturnValueList || parent.NodeType == SyntaxNodeType.Argument || parent.NodeType == SyntaxNodeType.Values)
+                            if (parent.NodeType == SyntaxNodeType.ReturnValueList 
+                                || parent.NodeType == SyntaxNodeType.Argument 
+                                || parent.NodeType == SyntaxNodeType.Dummy)
                             {
                                 tokens.PushFront(token);
                             }

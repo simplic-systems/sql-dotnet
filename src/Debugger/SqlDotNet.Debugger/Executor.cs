@@ -12,9 +12,9 @@ namespace SqlDotNet.Debugger
 {
     internal class Executor : IQueryExecutor
     {
-        public object CallFunction(string name, IList<QueryParameter> parameter)
+        public Tuple<object, DataType> CallFunction(string name, IList<QueryParameter> parameter)
         {
-            return 1234;
+            return new Tuple<object, DataType>(12, DataType.Int32);
         }
 
         public TableDefinition GetTableSchema(string owner, string table)
