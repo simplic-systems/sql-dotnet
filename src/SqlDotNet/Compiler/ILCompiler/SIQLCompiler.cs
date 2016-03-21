@@ -84,7 +84,7 @@ namespace SqlDotNet.Compiler
                         // Use for select from a table
                         if (table != null)
                         {
-                            var tblDef = executor.GetTableSchema(table.Owner, table.TableName);   
+                            var tblDef = executor.GetTableSchema(table.Owner, table.TableName);
 
                             /*TODO:
                             Some where here we have to check for columns which does can not be found in any table definition,
@@ -144,7 +144,7 @@ namespace SqlDotNet.Compiler
                         string resultSetName = GetResultSetName(resultSetNr);
 
                         ReturnValueList lst = node.FindFirstOrDefaultChildrenOfType<ReturnValueList>();
-                        
+
                         // Fill result-set column
                         int unnamedColumns = 0;
                         StringBuilder resultSetDefinition = new StringBuilder(); // Defines the returning columns
@@ -237,37 +237,23 @@ namespace SqlDotNet.Compiler
                         colNode.Cursor = columnNode.Owner;
                     }
                     break;
-                #endregion   
+                #endregion
+
+                #region [SyntaxNodeType.Insert]
+                case SyntaxNodeType.Insert:
+                    {
+                        var insertNode = (node as InsertNode);
+
+                        //var callFunctionNode = parent.CreateNode<CallFunctionNode>();
+
+                    }
+                    break;
+                #endregion
 
                 #region [SyntaxNodeType.FuncCall]
                 case SyntaxNodeType.FuncCall:
                     {
-                        StringBuilder argBuilder = new StringBuilder();
-                        argBuilder.Append(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, "f", (node as SyntaxTreeNode).Token.Content) + "(");
-                        bool argsFound = false;
-
-                        int i = 0;
-                        foreach (var args in node.FindChildrenOfType<ArgumentNode>())
-                        {
-                            // Parse as expression and push result on the argument stack
-                           // CompileExpression(strBuilder, args, null, intendend);
-                            strBuilder.AppendLine((new string('\t', intendend)) + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
-
-                            if (argsFound)
-                            {
-                                argBuilder.Append(", ");
-                            }
-
-                            argBuilder.Append("_dummy_fp" + i.ToString());
-
-                            argsFound = true;
-                            i++;
-                        }
-
-                        argBuilder.Append(")");
-
-                        // Call the function
-                        strBuilder.AppendLine(argBuilder.ToString());
+                        CompileCallFunction(strBuilder, node, parent, intendend);
                     }
                     break;
                 #endregion
@@ -359,6 +345,38 @@ namespace SqlDotNet.Compiler
                     break;
                     #endregion
             }
+        }
+
+        private void CompileCallFunction(StringBuilder strBuilder, SyntaxTreeNode node, CommandChainNode parent, int intendend, string functionType = "f")
+        {
+            string intendendStr = new string('\t', intendend);
+
+            StringBuilder argBuilder = new StringBuilder();
+            argBuilder.Append(intendendStr + string.Format(SIQLCommands.CALL_FUNCTION_PREP, functionType, (node as SyntaxTreeNode).Token.Content) + "(");
+            bool argsFound = false;
+
+            int i = 0;
+            foreach (var args in node.FindChildrenOfType<ArgumentNode>())
+            {
+                // Parse as expression and push result on the argument stack
+                // CompileExpression(strBuilder, args, null, intendend);
+                strBuilder.AppendLine((new string('\t', intendend)) + string.Format(SIQLCommands.LOAD_ARGUMENT_PREP, i));
+
+                if (argsFound)
+                {
+                    argBuilder.Append(", ");
+                }
+
+                argBuilder.Append("_dummy_fp" + i.ToString());
+
+                argsFound = true;
+                i++;
+            }
+
+            argBuilder.Append(")");
+
+            // Call the function
+            strBuilder.AppendLine(argBuilder.ToString());
         }
 
         #region [CompileExpression]

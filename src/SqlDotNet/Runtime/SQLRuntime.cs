@@ -57,6 +57,7 @@ namespace SqlDotNet.Runtime
         /// <param name="scope">Current scope, in which the command is executed</param>
         private void ExecuteCommand(CommandChainNode node, Scope scope)
         {
+            #region [OpenCursor]
             if (node is OpenCursor)
             {
                 var openCursorNode = (OpenCursor)node;
@@ -69,6 +70,8 @@ namespace SqlDotNet.Runtime
                     cursor.Rows = executor.Select(openCursorNode.CursorSource, false, false, openCursorNode.Columns, filter, scope);
                 }
             }
+            #endregion
+
             else if (node is OpenResultSet)
             {
                 var openResultSet = (OpenResultSet)node;
@@ -88,10 +91,8 @@ namespace SqlDotNet.Runtime
                     }
                 }
             }
-            else if (node is OperatorNode)
-            {
-                scope.Stack.Execute((node as OperatorNode).OpType);
-            }
+
+            #region [LoadConstantNode]
             // Constant handling
             // Push constant node to the stack
             else if (node is LoadConstantNode)
@@ -99,6 +100,8 @@ namespace SqlDotNet.Runtime
                 var constNode = (node as LoadConstantNode);
                 scope.Stack.Push(constNode.ConstantValue, constNode.DataType);
             }
+            #endregion
+
             // Constant handling
             // Push constant node to the stack
             else if (node is LoadColumnNode)
@@ -107,17 +110,24 @@ namespace SqlDotNet.Runtime
                 
                 scope.Stack.Push("Test", Compiler.DataType.Object);
             }
+
+            #region [OperatorNode]
             // Operator
             else if (node is OperatorNode)
             {
                 scope.Stack.Execute((node as OperatorNode).OpType);
             }
-            // Operator
+            #endregion
+
+            #region [CreateResultSetRow]
             else if (node is CreateResultSetRow)
             {
                 var rs = scope.GetResultSet();
                 rs.Rows.Add(new QueryResultRow());
             }
+            #endregion
+
+            #region [PopToNextColumn]
             // Operator
             else if (node is PopToNextColumn)
             {
@@ -134,7 +144,7 @@ namespace SqlDotNet.Runtime
 
                 rs.Rows.Last().Columns.Add(ptnxcNode.ColumnName, val);
             }
-
+            #endregion
         }
         #endregion
 

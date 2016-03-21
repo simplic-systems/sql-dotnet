@@ -118,3 +118,11 @@ Takes the optimized and generated `AST` and compiles it to `SIQL` code.
 ## Runtime
 
 The `runtime` is responsible to execute `SIQL` code and call the `IQueryExecutor` interface/implementation.
+
+The runtime is implemeted in `SQLRuntime.cs` and contains the execution ligic which triggers the `IQueryExecutor`. The required components
+for the runtime are all placed in the `Runtime/` directory and consists of:
+
+1. CommandChain - SIQL as .net commands
+2. Scope - Contains the scope-system, for holding cursor, resultsets, arguments and other stuff
+3. Stack - Used for operation and resultset generating
+4. CLRInterface - Contains the communication interface to invoke methods when sql functions or statements were executed.
