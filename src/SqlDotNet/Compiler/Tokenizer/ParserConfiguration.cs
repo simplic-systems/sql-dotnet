@@ -194,6 +194,14 @@ namespace SqlDotNet.Compiler
         }
 
         /// <summary>
+        /// Escape-Charachter in complex tokens
+        /// </summary>
+        public char[] ComplexTokenEscapeChar
+        {
+            get { return new char[] { '\\', '\'' }; }
+        }
+
+        /// <summary>
         /// String starting a single line comment
         /// </summary>
         public string SingleLineComment

@@ -58,5 +58,13 @@ namespace SqlDotNet.Compiler
         {
             get;
         }
+
+        /// <summary>
+        /// Escape-Charachter in complex tokens
+        /// </summary>
+        char[] ComplexTokenEscapeChar
+        {
+            get;
+        }
     }
 }
