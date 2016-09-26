@@ -58,7 +58,8 @@ namespace SqlDotNet.Compiler
         First = 1008,
         Insert = 2000,
         Into = 2001,
-        Values = 2002
+        Values = 2002,
+        Delete = 2003
     }
 
     /// <summary>

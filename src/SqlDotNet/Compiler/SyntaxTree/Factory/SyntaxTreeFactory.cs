@@ -86,6 +86,7 @@ namespace SqlDotNet.Compiler
             staticTokens.Add("as", new StaticFactoryToken("as", TokenType.As));
             staticTokens.Add("not", new StaticFactoryToken("not", TokenType.Not));
             staticTokens.Add("first", new StaticFactoryToken("first", TokenType.First));
+            staticTokens.Add("delete", new StaticFactoryToken("delete", TokenType.Delete));
         }
         #endregion
 

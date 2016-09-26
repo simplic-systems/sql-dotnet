@@ -105,7 +105,14 @@ namespace SqlDotNet.Debugger
                             }
                         }
 
+                    #region [newid]
+                    case "newid":
+                        {
+                            AssertFunction(name, parameter, 0, 0, new DataType[] { });
 
+                            return new Tuple<object, DataType>(Guid.NewGuid(), DataType.Object);
+                        }
+                        #endregion
                 }
             }
 
