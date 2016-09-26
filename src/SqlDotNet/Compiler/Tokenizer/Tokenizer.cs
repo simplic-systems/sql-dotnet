@@ -173,7 +173,7 @@ namespace SqlDotNet.Compiler
         #endregion
 
         #region Private Methods
-        private QuotedParameterParserResult GetNextComplexString(string Input, char StartEndChar, int startPos)
+        private QuotedParameterParserResult GetNextComplexString(string Input, char startEndChar, int startPos)
         {
             // Define return-value / vars
             QuotedParameterParserResult returnValue = new QuotedParameterParserResult();
@@ -193,12 +193,8 @@ namespace SqlDotNet.Compiler
                     continue;
                 }
 
-                if (Input[i] == StartEndChar)
-                {
-                    unescapedQuotes++;
-                }
-
-                if (Input[i] == '\\')
+                // Escape, but only for chars that are unequal to the start end char, for example '\''
+                if (lexerConstants.ComplexTokenEscapeChar.Where(item => item != startEndChar).Contains(Input[i]))
                 {
                     // This char will not be added to the result
                     returnValue.RemovedChars++;
@@ -206,6 +202,25 @@ namespace SqlDotNet.Compiler
                     addNextDirect = true;
                     continue;
                 }
+                // Escape, but only for chars that are EQUAL to the start end char, for example ''''
+                // and is not the first or the last character
+                if (lexerConstants.ComplexTokenEscapeChar.Where(item => item == startEndChar).Contains(Input[i]) 
+                    && i > 0 
+                    && i < (Input.Length - 1)
+                    && Input[i + 1] == startEndChar)
+                {
+                    // This char will not be added to the result
+                    returnValue.RemovedChars++;
+
+                    addNextDirect = true;
+                    continue;
+                }
+
+                if (Input[i] == startEndChar)
+                {
+                    unescapedQuotes++;
+                }
+
                 returnValue.Result += Input[i];
 
                 // Leave if all unescaped quoates are closed
@@ -218,7 +233,7 @@ namespace SqlDotNet.Compiler
 
             if (unescapedQuotes % 2 != 0)
             {
-                errorListener.Report("T0002", "Expected close token: " + StartEndChar.ToString(), startPos, 1, null);
+                errorListener.Report("T0002", "Expected close token: " + startEndChar.ToString(), startPos, 1, null);
             }
 
             return returnValue;
