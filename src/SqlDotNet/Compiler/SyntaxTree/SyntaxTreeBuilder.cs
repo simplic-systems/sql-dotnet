@@ -527,6 +527,15 @@ namespace SqlDotNet.Compiler
                             break;
                         #endregion
 
+                        #region [TokenType.Parameter]
+                        case TokenType.Parameter:
+                            {
+                                var constNode = new ParameterNode(null, token);
+                                treeNodeList.Add(constNode);
+                            }
+                            break;
+                        #endregion
+
                         #region [TokenType.Operator]
                         case TokenType.Add:
                             {

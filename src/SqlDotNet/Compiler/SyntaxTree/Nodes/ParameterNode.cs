@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SqlDotNet.Compiler
 {
-    public class ParameterNode : SyntaxTreeNode
+    public class ParameterNode : ConstantNode
     {
         public ParameterNode(SyntaxTreeNode parentNode, RawToken token) 
             : base(parentNode, SyntaxNodeType.Parameter, token)
@@ -20,11 +20,6 @@ namespace SqlDotNet.Compiler
             {
                 return "Parameter-?";
             }
-        }
-
-        public override void CheckSemantic()
-        {
-
         }
     }
 }
