@@ -27,7 +27,8 @@ namespace SqlDotNet.Compiler
         Str = 0x0061,
 
         AnonymObject = 0x0080,
-        Object = 0x0090
+        Object = 0x0090,
+        Binary = 0x0091
     }
 
     public class DataTypeHelper

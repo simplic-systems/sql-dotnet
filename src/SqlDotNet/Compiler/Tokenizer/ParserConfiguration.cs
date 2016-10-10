@@ -135,6 +135,10 @@ namespace SqlDotNet.Compiler
             {
                 returnValue = DataType.Str;
             }
+            else if (value.StartsWith("0x"))
+            {
+                returnValue = DataType.Binary;
+            }
             else if (IsBoolean(value))
             {
                 returnValue = DataType.Boolean;
