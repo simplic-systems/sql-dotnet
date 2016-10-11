@@ -9,7 +9,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class FillResultSetCCNode : CommandChainNode
+    public class FillResultSetCCNode : CommandChainNode
     {
         public FillResultSetCCNode(CommandChainNode parent)
             : base(parent)

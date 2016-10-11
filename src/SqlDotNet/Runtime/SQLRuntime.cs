@@ -139,6 +139,12 @@ namespace SqlDotNet.Runtime
 
                     var amount = executor.Insert(callFunc.FunctionName, callFunc.Arugments, arguments.ToList());
                     scope.Stack.Push(amount, Compiler.DataType.Int64);
+
+                    // Create resultset for insert
+                    var rs = scope.GetResultSet();
+                    rs.Definition.Add("__amount__", Compiler.DataType.Int32);
+                    var row = new QueryResultRow();
+                    row.Columns.Add("__amount__", amount);
                 }
                 if (callFunc.Type == "f")
                 {
@@ -167,6 +173,26 @@ namespace SqlDotNet.Runtime
             {
                 var constNode = (node as LoadConstantCCNode);
                 scope.Stack.Push(constNode.ConstantValue, constNode.DataType);
+            }
+            #endregion
+
+            #region [LoadParameterNode]
+            // Constant handling
+            // Push constant node to the stack
+            else if (node is LoadParameterCCNode)
+            {
+                var parameterNode = (node as LoadParameterCCNode);
+
+                var index = parameterNode.Index;
+
+                if (rootScope.Vars.Count < index)
+                {
+                    throw new Exception("Not enough parameter for variables");
+                }
+
+                var _var = rootScope.Vars.ElementAt(index);
+
+                scope.Stack.Push(_var.Value.Value, _var.Value.DataType);
             }
             #endregion
 

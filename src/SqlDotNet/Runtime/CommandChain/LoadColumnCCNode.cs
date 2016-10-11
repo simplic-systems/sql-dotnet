@@ -10,7 +10,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Load a constant value onto the stack
     /// </summary>
-    internal class LoadColumnCCNode : CommandChainNode
+    public class LoadColumnCCNode : CommandChainNode
     {
         public LoadColumnCCNode(CommandChainNode parent)
             : base(parent)

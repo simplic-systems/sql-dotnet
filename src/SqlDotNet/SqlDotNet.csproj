@@ -84,6 +84,7 @@
     <Compile Include="Compiler\Tokenizer\TokenPreProcessor.cs" />
     <Compile Include="Runtime\CommandChain\CallFunctionCCNode.cs" />
     <Compile Include="Runtime\CommandChain\LoadArgumentNodeCCNode.cs" />
+    <Compile Include="Runtime\CommandChain\LoadParameterCCNode.cs" />
     <Compile Include="Tracing\ErrorListener.cs" />
     <Compile Include="Runtime\CommandChain\FilterCursorCCNode.cs" />
     <Compile Include="Runtime\CommandChain\FillResultSetCCNode.cs" />

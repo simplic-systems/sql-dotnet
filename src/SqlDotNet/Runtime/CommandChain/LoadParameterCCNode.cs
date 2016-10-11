@@ -8,20 +8,20 @@ using System.Threading.Tasks;
 namespace SqlDotNet.Runtime
 {
     /// <summary>
-    /// Load a constant value onto the stack
+    /// Load a parameter value onto the stack
     /// </summary>
-    public class LoadArgumentCCNode : CommandChainNode
+    public class LoadParameterCCNode : CommandChainNode
     {
-        public LoadArgumentCCNode(CommandChainNode parent)
+        public LoadParameterCCNode(CommandChainNode parent)
             : base(parent)
         {
 
         }
 
         /// <summary>
-        /// Order id
+        /// Index of the parameter
         /// </summary>
-        public int Id
+        public int Index
         {
             get;
             set;

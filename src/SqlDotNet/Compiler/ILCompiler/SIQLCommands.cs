@@ -110,6 +110,17 @@ namespace SqlDotNet.Compiler
         public const string LOAD_COLUMN = "ldcol";
 
         /// <summary>
+        /// Load parameter onto the stack
+        /// </summary>
+        public const string LOAD_PARAMETER = "ldp";
+
+        /// <summary>
+        /// <see cref="LOAD_PARAMETER"/> {0}
+        /// Load parameter onto the stack
+        /// </summary>
+        public const string LOAD_PARAMETER_PREP = "ldp {0}";
+
+        /// <summary>
         /// <see cref="LOAD_COLUMN"/> {0}
         /// {0}: Full qualified column name
         /// </summary>

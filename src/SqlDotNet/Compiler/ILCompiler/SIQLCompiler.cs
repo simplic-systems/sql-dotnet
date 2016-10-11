@@ -21,6 +21,7 @@ namespace SqlDotNet.Compiler
         private int resultSetCounter;
         private CompiledQuery result;
         private CLRInterface.IQueryExecutor executor;
+        private int parameterCount;
         #endregion
 
         #region Constructor
@@ -320,6 +321,17 @@ namespace SqlDotNet.Compiler
                     break;
                 #endregion
 
+                #region [SyntaxNodeType.Parameter]
+                case SyntaxNodeType.Parameter:
+                    strBuilder.AppendLine(string.Format(SIQLCommands.LOAD_PARAMETER_PREP, parameterCount));
+
+                    var ldParam = parent.CreateNode<LoadParameterCCNode>();
+                    ldParam.Index = parameterCount;
+
+                    parameterCount++;
+                    break;
+                #endregion
+
                 #region [SyntaxNodeType.Constant]
                 case SyntaxNodeType.Constant:
                     var constNode = (node as ConstantNode);
@@ -528,6 +540,9 @@ namespace SqlDotNet.Compiler
 
                 case DataType.Str:
                     return "str";
+
+                case DataType.Binary:
+                    return "binary";
 
                 default:
                     return "";
