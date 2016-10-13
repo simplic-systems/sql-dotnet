@@ -27,7 +27,8 @@ namespace SqlDotNet.Compiler
         Str = 0x0061,
 
         AnonymObject = 0x0080,
-        Object = 0x0090
+        Object = 0x0090,
+        Binary = 0x0091
     }
 
     public class DataTypeHelper
@@ -62,6 +63,9 @@ namespace SqlDotNet.Compiler
                 case "str":
                     return DataType.Str;
 
+                case "binary":
+                    return DataType.Binary;
+
                 default:
                     return DataType.None;
             }
@@ -91,6 +95,17 @@ namespace SqlDotNet.Compiler
 
                 case DataType.Str:
                     return value.ToString();
+                    
+                case DataType.Binary:
+                    {
+                        value = value.Substring(2, value.Length - 2);
+
+                        int numberChars = value.Length;
+                        byte[] bytes = new byte[numberChars / 2];
+                        for (int i = 0; i < numberChars; i += 2)
+                            bytes[i / 2] = Convert.ToByte(value.Substring(i, 2), 16);
+                        return bytes;
+                    }
             }
 
             return null;

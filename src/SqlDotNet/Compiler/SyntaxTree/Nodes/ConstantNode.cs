@@ -14,6 +14,12 @@ namespace SqlDotNet.Compiler
 
         }
 
+        protected ConstantNode(SyntaxTreeNode Parent, SyntaxNodeType nodeType, RawToken token)
+            : base(Parent, nodeType, token)
+        {
+
+        }
+
         public override void CheckSemantic()
         {
             // Proof wether element has children

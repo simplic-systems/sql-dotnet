@@ -73,6 +73,10 @@ namespace SqlDotNet.Compiler
                 {
                     token.Type = TokenType.Constant;
                 }
+                else if (token.Content.StartsWith("0x"))
+                {
+                    token.Type = TokenType.Constant;
+                }
                 else if (SyntaxTreeFactory.Singleton.StaticTokens.ContainsKey(tcontent))
                 {
                     token.Type = SyntaxTreeFactory.Singleton.StaticTokens[tcontent].Type;

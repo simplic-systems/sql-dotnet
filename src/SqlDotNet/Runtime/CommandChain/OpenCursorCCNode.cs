@@ -9,7 +9,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class OpenCursorCCNode : CommandChainNode
+    public class OpenCursorCCNode : CommandChainNode
     {
         public OpenCursorCCNode(CommandChainNode parent)
             : base(parent)

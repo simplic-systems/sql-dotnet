@@ -9,7 +9,7 @@ namespace SqlDotNet.Runtime
     /// <summary>
     /// Start of any command chain / some kind of dummy
     /// </summary>
-    internal class OpenResultSetCCNode : CommandChainNode
+    public class OpenResultSetCCNode : CommandChainNode
     {
         public OpenResultSetCCNode(CommandChainNode parent)
             : base(parent)

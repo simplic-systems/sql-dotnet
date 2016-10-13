@@ -216,7 +216,11 @@ namespace SqlDotNet.Debugger
 
                 if (launch)
                 {
-                    var resultSet = parser.Execute(res, new List<QueryParameter>());
+                    var parameterList = new List<QueryParameter>();
+                    parameterList.Add(new QueryParameter() { Name = "Param1", Value = Guid.NewGuid() });
+                    parameterList.Add(new QueryParameter() { Name = "Param2", Value = "Hello World" });
+
+                    var resultSet = parser.Execute(res, parameterList);
 
                     resultGridView.Items.Clear();
                     resultGridView.Columns.Clear();

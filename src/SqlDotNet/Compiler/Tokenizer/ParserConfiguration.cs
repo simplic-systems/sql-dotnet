@@ -135,6 +135,10 @@ namespace SqlDotNet.Compiler
             {
                 returnValue = DataType.Str;
             }
+            else if (value.StartsWith("0x"))
+            {
+                returnValue = DataType.Binary;
+            }
             else if (IsBoolean(value))
             {
                 returnValue = DataType.Boolean;
@@ -191,6 +195,14 @@ namespace SqlDotNet.Compiler
         public char[] ComplexToken
         {
             get { return new char[] { '"', '\'' }; }
+        }
+
+        /// <summary>
+        /// Escape-Charachter in complex tokens
+        /// </summary>
+        public char[] ComplexTokenEscapeChar
+        {
+            get { return new char[] { '\\', '\'' }; }
         }
 
         /// <summary>
