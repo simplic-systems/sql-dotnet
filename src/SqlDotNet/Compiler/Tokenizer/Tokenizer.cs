@@ -30,6 +30,16 @@ namespace SqlDotNet.Compiler
             this.lexerConstants = lexerConstants;
             this.errorListener = errorListener;
         }
+
+        /// <summary>
+        /// Create
+        /// </summary>
+        /// <param name="lexerConstants">Lexer constants / config</param>
+        public Tokenizer(ILexerConstants lexerConstants)
+        {
+            tokens = new Dequeue<RawToken>();
+            this.lexerConstants = lexerConstants;
+        }
         #endregion
 
         #region Public Methods
@@ -116,7 +126,7 @@ namespace SqlDotNet.Compiler
                             // Proof, wether the comment is closed
                             if (commentClosed == false)
                             {
-                                errorListener.Report("T0004", "Multiline comment not closed.", i, i - 3, null);
+                                errorListener?.Report("T0004", "Multiline comment not closed.", i, i - 3, null);
                             }
 
                             lastToken = "";
@@ -218,7 +228,7 @@ namespace SqlDotNet.Compiler
 
             if (unescapedQuotes % 2 != 0)
             {
-                errorListener.Report("T0002", "Expected close token: " + StartEndChar.ToString(), startPos, 1, null);
+                errorListener?.Report("T0002", "Expected close token: " + StartEndChar.ToString(), startPos, 1, null);
             }
 
             return returnValue;

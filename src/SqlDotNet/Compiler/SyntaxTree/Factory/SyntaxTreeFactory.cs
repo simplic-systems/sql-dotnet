@@ -87,6 +87,14 @@ namespace SqlDotNet.Compiler
             staticTokens.Add("not", new StaticFactoryToken("not", TokenType.Not));
             staticTokens.Add("first", new StaticFactoryToken("first", TokenType.First));
             staticTokens.Add("delete", new StaticFactoryToken("delete", TokenType.Delete));
+            staticTokens.Add("update", new StaticFactoryToken("update", TokenType.Update));
+            staticTokens.Add("set", new StaticFactoryToken("set", TokenType.SetKeyWord));
+            staticTokens.Add("drop", new StaticFactoryToken("drop", TokenType.Drop));
+            staticTokens.Add("table", new StaticFactoryToken("table", TokenType.Table));
+            staticTokens.Add("alter", new StaticFactoryToken("alter", TokenType.Alter));
+            staticTokens.Add("foreign", new StaticFactoryToken("foreign", TokenType.Foreign));
+            staticTokens.Add("key", new StaticFactoryToken("key", TokenType.Key));
+            staticTokens.Add("add", new StaticFactoryToken("add", TokenType.AddKeyWord));
         }
         #endregion
 

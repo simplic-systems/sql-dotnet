@@ -127,7 +127,7 @@ namespace SqlDotNet.Compiler
             DataType returnValue = DataType.None;
             string value = token.Content;
 
-            if (value == "null")
+            if (value?.ToLower() == "null")
             {
                 returnValue = DataType.Null;
             }

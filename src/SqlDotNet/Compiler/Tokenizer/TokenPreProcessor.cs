@@ -18,9 +18,9 @@ namespace SqlDotNet.Compiler
         /// </summary>
         /// <param name="tokens">List of unprocessed tokens</param>
         /// <param name="parserConfig">Parser configuration</param>
-        /// <param name="errorListener">Error listener for error reporting</param>
+        /// <param name="errorListener">Optional Error listener for error reporting</param>
         /// <returns>Dequeue of processed tokens</returns>
-        public Dequeue<RawToken> Process(Dequeue<RawToken> tokens, ParserConfiguration parserConfig, IErrorListener errorListener)
+        public Dequeue<RawToken> Process(Dequeue<RawToken> tokens, ParserConfiguration parserConfig, IErrorListener errorListener = default(IErrorListener))
         {
             Dequeue<RawToken> processedTokens = new Dequeue<RawToken>();
 
@@ -81,7 +81,7 @@ namespace SqlDotNet.Compiler
                 {
                     token.Type = TokenType.Constant;
                 }
-                else if (parserConfig.IsValidLanguageIndependentIdentifier(tcontent) || tcontent.StartsWith("$"))
+                else if (parserConfig.IsValidLanguageIndependentIdentifier(tcontent) || tcontent.StartsWith("$") || tcontent.StartsWith("@"))
                 {
                     token.Type = TokenType.Name;
 
@@ -94,7 +94,7 @@ namespace SqlDotNet.Compiler
                 }
                 else
                 {
-                    errorListener.Report("T0006", "Invalid token: " + token.Content, token.Index.Item1, token.Index.Item2, token);
+                    errorListener?.Report("T0006", "Invalid token: " + token.Content, token.Index.Item1, token.Index.Item2, token);
                 }
                 #endregion
 

@@ -26,10 +26,23 @@ namespace SqlDotNet.Compiler
         OpenBraceToken = 24,
         CloseBraceToken = 25,
 
+        /// <summary>
+        /// +
+        /// </summary>
         Add = 30,
+        /// <summary>
+        /// -
+        /// </summary>
         Subtract = 31,
+        /// <summary>
+        /// *
+        /// </summary>
         Multiply = 32,
+        /// <summary>
+        /// /
+        /// </summary>
         Devide = 33,
+
         Assign = 34,
         Star = 35,
 
@@ -56,10 +69,19 @@ namespace SqlDotNet.Compiler
         As = 1006,
         Owner = 1007,
         First = 1008,
+        SetKeyWord = 1009,
         Insert = 2000,
         Into = 2001,
         Values = 2002,
-        Delete = 2003
+        Delete = 2003,
+        Update = 2004,
+        Drop = 2005,
+        Table = 2006,
+        Alter = 2007,
+        Foreign = 2008,
+        Key = 2009,
+        AddKeyWord = 2010
+        
     }
 
     /// <summary>
