@@ -80,7 +80,9 @@ namespace SqlDotNet.Compiler
         Alter = 2007,
         Foreign = 2008,
         Key = 2009,
-        AddKeyWord = 2010
+        AddKeyWord = 2010,
+        Commit = 2011,
+        Work = 2012
         
     }
 

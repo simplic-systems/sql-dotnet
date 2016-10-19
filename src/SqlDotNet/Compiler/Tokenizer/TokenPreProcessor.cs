@@ -1,6 +1,7 @@
 ﻿using Simplic.Collections.Generic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,7 +76,7 @@ namespace SqlDotNet.Compiler
                 }
                 else if (token.Content.StartsWith("0x"))
                 {
-                    token.Type = TokenType.Constant;
+                    token.Type = TokenType.Constant;   
                 }
                 else if (SyntaxTreeFactory.Singleton.StaticTokens.ContainsKey(tcontent))
                 {

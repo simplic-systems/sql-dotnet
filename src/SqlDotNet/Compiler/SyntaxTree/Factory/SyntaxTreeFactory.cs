@@ -95,6 +95,8 @@ namespace SqlDotNet.Compiler
             staticTokens.Add("foreign", new StaticFactoryToken("foreign", TokenType.Foreign));
             staticTokens.Add("key", new StaticFactoryToken("key", TokenType.Key));
             staticTokens.Add("add", new StaticFactoryToken("add", TokenType.AddKeyWord));
+            staticTokens.Add("commit", new StaticFactoryToken("commit", TokenType.Commit));
+            staticTokens.Add("work", new StaticFactoryToken("work", TokenType.Work));
         }
         #endregion
 
