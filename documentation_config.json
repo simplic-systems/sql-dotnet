@@ -3,5 +3,5 @@
   "part_of": "core",
   "contains_py_api": false,
   "py_api_xml_name": "",
-  "exclude": []
+  "exclude": ["**/*.Data.DB.csproj", "**/*.Service.csproj"]
 }
