@@ -1,4 +1,5 @@
 {
   "productname": "Simplic Studio",
-  "is_main_repo": false
+  "is_main_repo": false,
+  "main_repo_name": "simplic-framework"
 }
